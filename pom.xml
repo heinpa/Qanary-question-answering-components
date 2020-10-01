@@ -58,6 +58,7 @@
                             <module>qanary_component-NED-Babelfy</module>
                             <module>qanary_component-NED-Dandelion</module>
                             <module>qanary_component-NED-tagme</module>
+                            <module>qanary_docker-compose-writer</module>
 			</modules>
 		</profile>
 		<profile>
