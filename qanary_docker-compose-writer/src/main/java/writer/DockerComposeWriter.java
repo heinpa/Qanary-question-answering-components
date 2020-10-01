@@ -8,6 +8,8 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -17,12 +19,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class DockerComposeWriter {
 
-    private static Logger logger = LoggerFactory.getLogger(DockerComposeWriter.class);
+    private static Logger logger = Logger.getLogger("DockerComposeWriter");
 
     private String dockerComposeFilePath;
     private String qanaryProjectPomLocation;
@@ -44,9 +43,9 @@ public class DockerComposeWriter {
         try {
             File file = new File(this.dockerComposeFilePath);
             if (file.createNewFile()) {
-               logger.info("created compose file: {}", this.dockerComposeFilePath);
+               logger.log(Level.INFO, "created compose file: {0}", this.dockerComposeFilePath);
             } else {
-                logger.info("file already exists: {}", this.dockerComposeFilePath);
+                logger.log(Level.INFO, "file already exists: {0}", this.dockerComposeFilePath);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -59,9 +58,11 @@ public class DockerComposeWriter {
             writer.close();
 
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new DockerComposeWriterException(e.getMessage());
         }
+
         this.iterateComponents();
+        logger.log(Level.INFO, "Wrote components to file: {0}", this.dockerComposeFilePath);
 
     }
 
@@ -79,6 +80,26 @@ public class DockerComposeWriter {
         }
     }
 
+    private String getVersion(Element root) throws DockerComposeWriterVersionException {
+        try {
+            Node versionNode = root.getElementsByTagName("version").item(0);
+            return versionNode.getTextContent();
+
+        } catch (NullPointerException e) {
+            throw new DockerComposeWriterVersionException();
+        }
+    }
+
+    private String getDockerImageName(Element root) throws DockerComposeWriterImageException {
+        try {
+            Node dockerImageNameNode = ((Element)root.getElementsByTagName("properties").item(0)).getElementsByTagName("docker.image.name").item(0);
+            return dockerImageNameNode.getTextContent();
+
+        } catch (NullPointerException e) {
+            throw new DockerComposeWriterImageException();
+        }
+    }
+
     private Map<String, String> addPropertiesFromPom(Map<String, String> componentAttr, String componentPomFilePath) throws DockerComposeWriterException {
         DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = null;
@@ -92,16 +113,12 @@ public class DockerComposeWriter {
         try {
             Document document = builder.parse(new FileInputStream(componentPomFilePath));
             Element root = document.getDocumentElement();
-            Node versionNode = root.getElementsByTagName("version").item(0);
-            Node dockerImageNameNode = ((Element)root.getElementsByTagName("properties").item(0)).getElementsByTagName("docker.image.name").item(0);
-            String version = versionNode.getTextContent();
-            String dockerImageName = dockerImageNameNode.getTextContent();
-            if (dockerImageName.equals("")) {
-                throw new DockerComposeWriterImageException();
-            }
-            if (version.equals("")) {
-                throw new DockerComposeWriterVersionException();
-            }
+
+            String version;
+            String dockerImageName;
+
+            version = this.getVersion(root);
+            dockerImageName = this.getDockerImageName(root);
 
             componentAttr.put("image", dockerImageName);
             componentAttr.put("component-version", version);
@@ -144,15 +161,17 @@ public class DockerComposeWriter {
 
             for(int i = 0; i < components.getLength(); ++i) {
                 String component = components.item(i).getTextContent();
-                Map<String, String> componentAttr = new HashMap<>();
-                String componentPomFilePath = this.qanaryPath+component+ "/pom.xml";
-                String componentPropertiesFilePath = this.qanaryPath+component+ "/src/main/resources/config/application.properties";
+                if (!component.equals("qanary_docker-compose-writer")) {
+                    Map<String, String> componentAttr = new HashMap<>();
+                    String componentPomFilePath = this.qanaryPath+component+ "/pom.xml";
+                    String componentPropertiesFilePath = this.qanaryPath+component+ "/src/main/resources/config/application.properties";
 
-                if (this.addPropertiesFromExternalResources(componentAttr, componentPomFilePath, componentPropertiesFilePath) != null) {
-                    componentAttr.put("newPort", basePort+i+"");
-                    this.appendToDockerComposeFile(componentAttr);
-                } else {
-                    logger.error("Invalid properties for {}", component);
+                    if (this.addPropertiesFromExternalResources(componentAttr, componentPomFilePath, componentPropertiesFilePath) != null) {
+                        componentAttr.put("newPort", basePort+i+"");
+                        this.appendToDockerComposeFile(componentAttr);
+                    } else {
+                        logger.log(Level.WARNING, "Invalid properties for {0}", component);
+                    }
                 }
             }
         } catch (IOException | SAXException e) {
