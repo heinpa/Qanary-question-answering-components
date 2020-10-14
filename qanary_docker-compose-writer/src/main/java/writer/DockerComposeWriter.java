@@ -1,18 +1,18 @@
 package writer;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+
+import com.sun.source.tree.WhileLoopTree;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -26,13 +26,15 @@ public class DockerComposeWriter {
     private String dockerComposeFilePath;
     private String qanaryProjectPomLocation;
     private String qanaryPath;
+    private int basePort;
 
-    public DockerComposeWriter() {
+    public DockerComposeWriter(int basePort) {
         try {
             File jarFile = new File(this.getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
             this.qanaryPath = jarFile.getParentFile().getParentFile().getParentFile().getCanonicalPath()+"/";
             this.dockerComposeFilePath = this.qanaryPath+"docker-compose.yml";
             this.qanaryProjectPomLocation = this.qanaryPath+"pom.xml";
+            this.basePort = basePort;
 
         } catch (URISyntaxException | IOException e) {
             e.printStackTrace();
@@ -53,7 +55,9 @@ public class DockerComposeWriter {
 
         try {
             FileWriter writer = new FileWriter(this.dockerComposeFilePath);
-            String head = "version: '3'\nservices:\n";
+            String head = "" +
+                    "version: '3'\n" +
+                    "services:\n";
             writer.write(head);
             writer.close();
 
@@ -66,19 +70,19 @@ public class DockerComposeWriter {
 
     }
 
-    private Map<String, String> addPort(Map<String, String> componentAtrr, String componentPropertiesFilePath) {
-        Properties properties = new Properties();
-
-        try {
-            properties.load(new FileInputStream(componentPropertiesFilePath));
-            String port = properties.get("server.port").toString();
-            componentAtrr.put("port", port);
-            return componentAtrr;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
+//    private Map<String, String> addPort(Map<String, String> componentAtrr, String componentPropertiesFilePath) {
+//        Properties properties = new Properties();
+//
+//        try {
+//            properties.load(new FileInputStream(componentPropertiesFilePath));
+//            String port = properties.get("server.port").toString();
+//            componentAtrr.put("port", port);
+//            return componentAtrr;
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            return null;
+//        }
+//    }
 
     private String getVersion(Element root) throws DockerComposeWriterVersionException {
         try {
@@ -91,13 +95,16 @@ public class DockerComposeWriter {
     }
 
     private String getDockerImageName(Element root) throws DockerComposeWriterImageException {
+        String imageName;
         try {
             Node dockerImageNameNode = ((Element)root.getElementsByTagName("properties").item(0)).getElementsByTagName("docker.image.name").item(0);
-            return dockerImageNameNode.getTextContent();
-
+            imageName= dockerImageNameNode.getTextContent();
         } catch (NullPointerException e) {
             throw new DockerComposeWriterImageException();
         }
+        if (imageName.equals("")) {
+            throw new DockerComposeWriterImageException();
+        } else return imageName;
     }
 
     private Map<String, String> addPropertiesFromPom(Map<String, String> componentAttr, String componentPomFilePath) throws DockerComposeWriterException {
@@ -124,7 +131,7 @@ public class DockerComposeWriter {
             componentAttr.put("component-version", version);
             return componentAttr;
 
-        } catch (SAXException | IOException e) {
+        } catch (SAXException | DockerComposeWriterImageException | IOException e) {
             throw new DockerComposeWriterException(e.getMessage());
         }
     }
@@ -132,7 +139,7 @@ public class DockerComposeWriter {
     private Map<String, String> addPropertiesFromExternalResources(Map<String, String> componentAttr, String componentPomFilePath,  String componentPropertiesFilePath) {
         try {
             componentAttr = this.addPropertiesFromPom(componentAttr, componentPomFilePath);
-            componentAttr = this.addPort(componentAttr, componentPropertiesFilePath);
+//            componentAttr = this.addPort(componentAttr, componentPropertiesFilePath);
             return componentAttr;
         } catch (DockerComposeWriterException e) {
             e.printStackTrace();
@@ -184,13 +191,15 @@ public class DockerComposeWriter {
             FileWriter writer = new FileWriter(this.dockerComposeFilePath, true);
             String version = componentAttr.get("component-version");
             String image = componentAttr.get("image");
-            String port = componentAttr.get("port");
+            //String port = componentAttr.get("port");
             String newPort = componentAttr.get("newPort");
             String dockerCompose = "" +
                     "  " + image + ":\n" +
+                    "    entrypoint: [\"java\", \"-jar\", \"/qanary-service.jar\", \"--server.port="+newPort+"\"]\n" +
                     "    image: " + image + ":" + version + "\n" +
                     "    ports: \n" +
-                    "      - \"" + newPort + ":" + port + "\"\n";
+                    "      - \"" + newPort + ":"+newPort+"\"\n" +
+                    "    network_mode: host\n";
             writer.write(dockerCompose);
             writer.close();
         } catch (IOException e) {
