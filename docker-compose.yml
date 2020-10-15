@@ -1,248 +1,254 @@
 version: '3'
 services:
   language-detection-shuyo:
-    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=10000"]
-    image: heipa/language-detection-shuyo:2.0.0
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43710"]
+    image: language-detection-shuyo:2.0.0
     ports: 
-      - "10000:10000"
+      - "43710:43710"
     network_mode: host
   monolithic-wrapper:
-    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=10001"]
-    image: heipa/monolithic-wrapper:2.0.0
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43711"]
+    image: monolithic-wrapper:2.0.0
     ports: 
-      - "10001:10001"
+      - "43711:43711"
     network_mode: host
   alchemy-nerd:
-    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=10002"]
-    image: heipa/alchemy-nerd:2.0.0
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43712"]
+    image: alchemy-nerd:2.0.0
     ports: 
-      - "10002:10002"
+      - "43712:43712"
     network_mode: host
   lucene-linker-nerd:
-    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=10003"]
-    image: heipa/lucene-linker-nerd:1.0.0
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43713"]
+    image: lucene-linker-nerd:1.0.0
     ports: 
-      - "10003:10003"
+      - "43713:43713"
     network_mode: host
   qanary_component-ner-stanford:
-    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=10004"]
-    image: heipa/qanary_component-ner-stanford:2.0.1
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43714"]
+    image: qanary_component-ner-stanford:2.0.1
     ports: 
-      - "10004:10004"
+      - "43714:43714"
     network_mode: host
   dbpedia-spotlight-ner:
-    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=10005"]
-    image: heipa/dbpedia-spotlight-ner:2.0.0
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43715"]
+    image: dbpedia-spotlight-ner:2.0.0
     ports: 
-      - "10005:10005"
+      - "43715:43715"
     network_mode: host
   qanary_component-ned-dbpedia-spotlight:
-    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=10006"]
-    image: heipa/qanary_component-ned-dbpedia-spotlight:2.2.0
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43716"]
+    image: qanary_component-ned-dbpedia-spotlight:2.2.0
     ports: 
-      - "10006:10006"
+      - "43716:43716"
     network_mode: host
   entity-classifier-ner:
-    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=10007"]
-    image: heipa/entity-classifier-ner:2.0.0
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43717"]
+    image: entity-classifier-ner:2.0.0
     ports: 
-      - "10007:10007"
+      - "43717:43717"
     network_mode: host
   ner-entity-classifier2:
-    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=10008"]
-    image: heipa/ner-entity-classifier2:2.0.0
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43718"]
+    image: ner-entity-classifier2:2.0.0
     ports: 
-      - "10008:10008"
+      - "43718:43718"
     network_mode: host
   ner-ontotext:
-    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=10009"]
-    image: heipa/ner-ontotext:2.0.0
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43719"]
+    image: ner-ontotext:2.0.0
     ports: 
-      - "10009:10009"
+      - "43719:43719"
     network_mode: host
   ned-ontotext:
-    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=10010"]
-    image: heipa/ned-ontotext:2.0.0
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43720"]
+    image: ned-ontotext:2.0.0
     ports: 
-      - "10010:10010"
+      - "43720:43720"
     network_mode: host
   ner-babelfy:
-    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=10011"]
-    image: heipa/ner-babelfy:2.0.0
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43721"]
+    image: ner-babelfy:2.0.0
     ports: 
-      - "10011:10011"
+      - "43721:43721"
     network_mode: host
   fox-ner:
-    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=10012"]
-    image: heipa/fox-ner:2.0.0
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43722"]
+    image: fox-ner:2.0.0
     ports: 
-      - "10012:10012"
+      - "43722:43722"
     network_mode: host
   ner-text-razor:
-    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=10013"]
-    image: heipa/ner-text-razor:2.0.0
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43723"]
+    image: ner-text-razor:2.0.0
     ports: 
-      - "10013:10013"
+      - "43723:43723"
     network_mode: host
   ner-meaning-cloud:
-    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=10014"]
-    image: heipa/ner-meaning-cloud:2.0.0
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43724"]
+    image: ner-meaning-cloud:2.0.0
     ports: 
-      - "10014:10014"
+      - "43724:43724"
     network_mode: host
   ned-meaning-cloud:
-    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=10015"]
-    image: heipa/ned-meaning-cloud:1.0.0
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43725"]
+    image: ned-meaning-cloud:1.0.0
     ports: 
-      - "10015:10015"
+      - "43725:43725"
     network_mode: host
   ner-dandelion:
-    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=10016"]
-    image: heipa/ner-dandelion:2.0.0
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43726"]
+    image: ner-dandelion:2.0.0
     ports: 
-      - "10016:10016"
+      - "43726:43726"
     network_mode: host
   ner-tagme:
-    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=10017"]
-    image: heipa/ner-tagme:2.0.0
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43727"]
+    image: ner-tagme:2.0.0
     ports: 
-      - "10017:10017"
+      - "43727:43727"
+    network_mode: host
+  ner-ambiverse:
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43728"]
+    image: ner-ambiverse:2.0.0
+    ports: 
+      - "43728:43728"
     network_mode: host
   qanary_component-ner-comiccharacternamesimplenamedentityrecognizer:
-    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=10019"]
-    image: heipa/qanary_component-ner-comiccharacternamesimplenamedentityrecognizer:1.0.0
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43729"]
+    image: qanary_component-ner-comiccharacternamesimplenamedentityrecognizer:1.0.0
     ports: 
-      - "10019:10019"
+      - "43729:43729"
     network_mode: host
   ner-aylien:
-    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=10020"]
-    image: heipa/ner-aylien:2.0.0
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43730"]
+    image: ner-aylien:2.0.0
     ports: 
-      - "10020:10020"
+      - "43730:43730"
     network_mode: host
   ned-aylien:
-    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=10021"]
-    image: heipa/ned-aylien:2.0.0
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43731"]
+    image: ned-aylien:2.0.0
     ports: 
-      - "10021:10021"
+      - "43731:43731"
     network_mode: host
   ned-ambiverse:
-    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=10022"]
-    image: heipa/ned-ambiverse:2.0.0
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43732"]
+    image: ned-ambiverse:2.0.0
     ports: 
-      - "10022:10022"
+      - "43732:43732"
     network_mode: host
   qanary-component-rel-relationlinker1:
-    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=10023"]
-    image: heipa/qanary-component-rel-relationlinker1:2.0.0
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43733"]
+    image: qanary-component-rel-relationlinker1:2.0.0
     ports: 
-      - "10023:10023"
+      - "43733:43733"
     network_mode: host
   qanary_component-rel-rematch:
-    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=10024"]
-    image: heipa/qanary_component-rel-rematch:2.0.0
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43734"]
+    image: qanary_component-rel-rematch:2.0.0
     ports: 
-      - "10024:10024"
+      - "43734:43734"
     network_mode: host
   qanary_component-rel-relationlinker2:
-    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=10025"]
-    image: heipa/qanary_component-rel-relationlinker2:2.0.0
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43735"]
+    image: qanary_component-rel-relationlinker2:2.0.0
     ports: 
-      - "10025:10025"
+      - "43735:43735"
     network_mode: host
   qanary-component-rel-relnliod:
-    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=10026"]
-    image: heipa/qanary-component-rel-relnliod:2.0.0
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43736"]
+    image: qanary-component-rel-relnliod:2.0.0
     ports: 
-      - "10026:10026"
+      - "43736:43736"
     network_mode: host
   qanary-component-cls-clsnliod:
-    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=10027"]
-    image: heipa/qanary-component-cls-clsnliod:2.0.0
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43737"]
+    image: qanary-component-cls-clsnliod:2.0.0
     ports: 
-      - "10027:10027"
+      - "43737:43737"
     network_mode: host
   qb-sina:
-    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=10028"]
-    image: heipa/qb-sina:2.0.1
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43738"]
+    image: qb-sina:2.0.1
     ports: 
-      - "10028:10028"
+      - "43738:43738"
     network_mode: host
   qanary_component-qb-sparqlexecuter:
-    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=10029"]
-    image: heipa/qanary_component-qb-sparqlexecuter:2.0.0
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43739"]
+    image: qanary_component-qb-sparqlexecuter:2.0.0
     ports: 
-      - "10029:10029"
+      - "43739:43739"
     network_mode: host
   qanary_component-qb-simplerealnameofsuperhero:
-    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=10030"]
-    image: heipa/qanary_component-qb-simplerealnameofsuperhero:2.0.1
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43740"]
+    image: qanary_component-qb-simplerealnameofsuperhero:2.0.1
     ports: 
-      - "10030:10030"
+      - "43740:43740"
     network_mode: host
   qb-comic-character-alterego:
-    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=10031"]
-    image: heipa/qb-comic-character-alterego:1.0.0
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43741"]
+    image: qb-comic-character-alterego:1.0.0
     ports: 
-      - "10031:10031"
+      - "43741:43741"
     network_mode: host
   query-builder:
-    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=10032"]
-    image: heipa/query-builder:2.0.0
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43742"]
+    image: query-builder:2.0.0
     ports: 
-      - "10032:10032"
+      - "43742:43742"
     network_mode: host
   annotation-of-spot-class:
-    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=10033"]
-    image: heipa/annotation-of-spot-class:2.0.0
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43743"]
+    image: annotation-of-spot-class:2.0.0
     ports: 
-      - "10033:10033"
+      - "43743:43743"
     network_mode: host
   annotation-of-spot-property:
-    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=10034"]
-    image: heipa/annotation-of-spot-property:2.0.0
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43744"]
+    image: annotation-of-spot-property:2.0.0
     ports: 
-      - "10034:10034"
+      - "43744:43744"
     network_mode: host
   diambiguation-class-okbqa:
-    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=10035"]
-    image: heipa/diambiguation-class-okbqa:2.0.0
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43745"]
+    image: diambiguation-class-okbqa:2.0.0
     ports: 
-      - "10035:10035"
+      - "43745:43745"
     network_mode: host
   diambiguation-property-okbqa:
-    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=10036"]
-    image: heipa/diambiguation-property-okbqa:2.0.0
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43746"]
+    image: diambiguation-property-okbqa:2.0.0
     ports: 
-      - "10036:10036"
+      - "43746:43746"
     network_mode: host
   qanary_component-asr-kaldi:
-    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=10037"]
-    image: heipa/qanary_component-asr-kaldi:1.0.0
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43747"]
+    image: qanary_component-asr-kaldi:1.0.0
     ports: 
-      - "10037:10037"
+      - "43747:43747"
     network_mode: host
   agdistis-ned:
-    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=10038"]
-    image: heipa/agdistis-ned:2.0.0
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43748"]
+    image: agdistis-ned:2.0.0
     ports: 
-      - "10038:10038"
+      - "43748:43748"
     network_mode: host
   ned-babelfy:
-    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=10039"]
-    image: heipa/ned-babelfy:2.0.0
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43749"]
+    image: ned-babelfy:2.0.0
     ports: 
-      - "10039:10039"
+      - "43749:43749"
     network_mode: host
   ned-dandelion:
-    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=10040"]
-    image: heipa/ned-dandelion:2.0.0
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43750"]
+    image: ned-dandelion:2.0.0
     ports: 
-      - "10040:10040"
+      - "43750:43750"
     network_mode: host
   ned-tagme:
-    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=10041"]
-    image: heipa/ned-tagme:2.0.2
+    entrypoint: ["java", "-jar", "/qanary-service.jar", "--server.port=43751"]
+    image: ned-tagme:2.0.2
     ports: 
-      - "10041:10041"
+      - "43751:43751"
     network_mode: host

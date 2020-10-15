@@ -164,7 +164,7 @@ public class DockerComposeWriter {
             Element profiles = (Element)root.getElementsByTagName("profiles").item(0);
             Element modules = (Element)profiles.getElementsByTagName("modules").item(0);
             NodeList components = modules.getElementsByTagName("module");
-            int basePort = 10000;
+            int basePort = this.basePort;
 
             for(int i = 0; i < components.getLength(); ++i) {
                 String component = components.item(i).getTextContent();
