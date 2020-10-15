@@ -27,14 +27,16 @@ public class DockerComposeWriter {
     private String qanaryProjectPomLocation;
     private String qanaryPath;
     private int basePort;
+    private String prefix;
 
-    public DockerComposeWriter(int basePort) {
+    public DockerComposeWriter(int basePort, String prefix) {
         try {
             File jarFile = new File(this.getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
             this.qanaryPath = jarFile.getParentFile().getParentFile().getParentFile().getCanonicalPath()+"/";
             this.dockerComposeFilePath = this.qanaryPath+"docker-compose.yml";
             this.qanaryProjectPomLocation = this.qanaryPath+"pom.xml";
             this.basePort = basePort;
+            this.prefix = prefix;
 
         } catch (URISyntaxException | IOException e) {
             e.printStackTrace();
@@ -196,7 +198,7 @@ public class DockerComposeWriter {
             String dockerCompose = "" +
                     "  " + image + ":\n" +
                     "    entrypoint: [\"java\", \"-jar\", \"/qanary-service.jar\", \"--server.port="+newPort+"\"]\n" +
-                    "    image: " + image + ":" + version + "\n" +
+                    "    image: " + this.prefix + image + ":" + version + "\n" +
                     "    ports: \n" +
                     "      - \"" + newPort + ":"+newPort+"\"\n" +
                     "    network_mode: host\n";
