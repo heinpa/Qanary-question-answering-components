@@ -59,6 +59,9 @@ public class DockerComposeWriter {
             FileWriter writer = new FileWriter(this.dockerComposeFilePath);
             String head = "" +
                     "version: '3'\n" +
+                    "networks:\n" +
+                    "  external:\n" +
+                    "    name: qanary-net\n" +
                     "services:\n";
             writer.write(head);
             writer.close();
@@ -201,7 +204,8 @@ public class DockerComposeWriter {
                     "    image: " + this.prefix + image + ":" + version + "\n" +
                     "    ports: \n" +
                     "      - \"" + newPort + ":"+newPort+"\"\n" +
-                    "    network_mode: host\n";
+                    "    networks:\n" +
+                    "      - qanary-net\n";
             writer.write(dockerCompose);
             writer.close();
         } catch (IOException e) {
