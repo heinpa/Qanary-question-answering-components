@@ -4,7 +4,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
-import writer.ServiceInformation;
+import writer.ComponentInformation;
 import writer.except.DockerComposeWriterException;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -13,18 +13,27 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-public class JavaServiceHelper extends ServiceHelper{
+public class JavaServiceHelper implements ServiceHelper{
 
     private final String directory;
     private final String pomPath;
 
+    /**
+     * @param directory the top-level component directory, containing pom.xml
+     */
     public JavaServiceHelper(String directory) {
         this.directory = directory;
         this.pomPath = directory+"/pom.xml";
     }
 
-    // get minimal service information with no custom settings
-    public ServiceInformation getServiceConfiguration() throws DockerComposeWriterException {
+    /**
+     * Read app.conf of a Qanary component implemented in Java to extract parameters that are required for
+     * its docker-compose service section.
+     *
+     * @return the minimal component information required to create a docker-compose service section.
+     * @throws DockerComposeWriterException
+     */
+    public ComponentInformation getServiceConfiguration() throws DockerComposeWriterException {
         DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder;
 
@@ -36,21 +45,27 @@ public class JavaServiceHelper extends ServiceHelper{
         assert builder != null;
 
         try {
+            // the the root element in pom.xml
             Document document = builder.parse(new FileInputStream(this.pomPath));
             Element root = document.getDocumentElement();
 
             // get version and image name from xml
             String version = this.getVersion(root);
-            String dockerImageName = this.getDockerImageName(root);
+            String dockerImageName = this.getDockerImageName(root); // used for service name and image
 
-            // only return the service information
-            return new ServiceInformation(dockerImageName, version, this.directory);
+            // return the minmal service information
+            return new ComponentInformation(dockerImageName, version, dockerImageName);
 
         } catch (SAXException | IOException e) {
             throw new DockerComposeWriterException("The provided file "+this.pomPath+" could not be read", e);
         }
     }
 
+    /**
+     * @param root the root element of the component's pom.xml
+     * @return the Qanary component version
+     * @throws DockerComposeWriterException
+     */
     private String getVersion(Element root) throws DockerComposeWriterException {
         String version;
         // get text content of pom version node
@@ -70,6 +85,12 @@ public class JavaServiceHelper extends ServiceHelper{
         }
     }
 
+    /**
+     *
+     * @param root the root element of the component's pom.xml
+     * @return the Qanary component docker image
+     * @throws DockerComposeWriterException
+     */
     private String getDockerImageName(Element root) throws DockerComposeWriterException {
         String imageName;
         // get text content of pom docker.image.name node

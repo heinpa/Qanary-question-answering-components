@@ -1,28 +1,41 @@
 package writer.helpers;
 
-import writer.ServiceInformation;
+import writer.ComponentInformation;
 import writer.except.DockerComposeWriterException;
 
-public abstract class ServiceHelper {
+/**
+ * The ServiceHelper interface provides the basic functionality required for any helper class.
+ * <br>
+ * Helper classes are supposed to read certain parameters
+ * depending on the individual implementation of a Qanary component
+ */
+public interface ServiceHelper {
 
-    public abstract ServiceInformation getServiceConfiguration() throws DockerComposeWriterException;
+    ComponentInformation getServiceConfiguration() throws DockerComposeWriterException;
 
-    // represents the standard service section
-    // todo: validate if this is ok as a standard
-    public String getServiceSectionAsString(ServiceInformation information) {
-        // minimal section
+    /**
+     * Use extracted component information to create the docker-compose service section for a Qanary component.
+     *
+     * @param componentInformation represents the Qanary component
+     * @return the service section for the specific Qanary component do be appended to docker-compose.yml
+     */
+    default String getServiceSectionAsString(ComponentInformation componentInformation) {
+        // minimal attributes
         String section = "" +
-                "  "+ information.getServiceName() + ":\n" +
-                "    image: " + information.getImagePrefix() + information.getServiceName() + ":" + information.getServiceVersion() + "\n";
+                "  "+ componentInformation.getServiceName() + ":\n" +
+                "    image: " + componentInformation.getImagePrefix() + componentInformation.getImageName() + ":" + componentInformation.getServiceVersion() + "\n" +
+                "    network_mode: host\n" +
+                "    ports: \n" +
+                "      - \""+ componentInformation.getPort() + "\"\n";
 
         // if additional environment variables are required
-        if (information.requiresEnvironment()) {
+        if (componentInformation.requiresEnvironment()) {
             String environment = "    environment: \n";
-            if (information.getPort() != null) {
-                environment += "      - \"SERVER_PORT="+information.getPort()+"\"\n";
+            if (componentInformation.getPort() != null) {
+                environment += "      - \"SERVER_PORT="+ componentInformation.getPort()+"\"\n";
             }
-            if (information.getPipelineEndpoint() != null) {
-                environment += "      - \"SPRING_BOOT_ADMIN_URL="+information.getPipelineEndpoint()+"\"\n";
+            if (componentInformation.getPipelineEndpoint() != null) {
+                environment += "      - \"SPRING_BOOT_ADMIN_URL="+ componentInformation.getPipelineEndpoint()+"\"\n";
             }
             // append to section
             section += environment;

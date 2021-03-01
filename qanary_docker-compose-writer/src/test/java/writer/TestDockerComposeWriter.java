@@ -1,10 +1,10 @@
+package writer;
+
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
-import writer.ComponentType;
 import writer.except.DockerComposeWriterException;
-import writer.helpers.PythonServiceHelper;
-import writer.ServiceInformation;
-import writer.DockerComposeWriter;
+
+import java.util.List;
 
 class TestDockerComposeWriter {
 
@@ -55,8 +55,8 @@ class TestDockerComposeWriter {
 
         DockerComposeWriter writer = new DockerComposeWriter("qanary_docker-compose-writer/src/main/config.properties");
         String filePath = ".";
-        String[] directories = writer.getAllDirectoriesFromPath(filePath);
-        Assert.assertNotEquals(0, directories.length);
+        List<String> directories = writer.getAllDirectoriesFromPath(filePath);
+        Assert.assertNotEquals(0, directories.size());
 
     }
 

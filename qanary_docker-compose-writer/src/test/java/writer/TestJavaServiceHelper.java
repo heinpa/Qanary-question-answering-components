@@ -1,5 +1,6 @@
+package writer;
+
 import org.junit.jupiter.api.Test;
-import writer.ServiceInformation;
 import writer.helpers.JavaServiceHelper;
 
 import static org.junit.Assert.*;
@@ -26,7 +27,7 @@ class TestJavaServiceHelper {
         String pipelineEndpoint = "http://localhost:8080";
 
         // hold the information
-        ServiceInformation service = new ServiceInformation(name, version, directory);
+        ComponentInformation service = new ComponentInformation(name, version, directory);
         service.setImagePrefix(imagePrefix);
         service.setPipelineEndpoint(pipelineEndpoint);
         service.setPort(port);
@@ -59,7 +60,7 @@ class TestJavaServiceHelper {
         // and no custom settings
 
         // hold the information
-        ServiceInformation service1 = new ServiceInformation(name1, version1, directory1);
+        ComponentInformation service1 = new ComponentInformation(name1, version1, directory1);
 
         assertNull(service1.getPort());
         assertNull(service1.getPipelineEndpoint());

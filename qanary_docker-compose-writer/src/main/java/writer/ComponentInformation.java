@@ -1,23 +1,31 @@
 package writer;
-
-// holds information needed for services in docker-compose.yml
-public class ServiceInformation {
+/**
+ * The ComponentInformation class represents a Qanary question answering component
+ * with information that is relevant within the context of deployment using docker-compose.
+ */
+public class ComponentInformation {
 
     // minimal parameters
     private final String serviceName; // used as image name and section heading
-    private final String serviceVersion; // used as image tag
-    private final String buildContext; // directory containing Dockerfile
+    private final String serviceVersion; // heading of service section
+    private final String imageName; // image of the component
 
     // additional custom information
     private String imagePrefix; // to include images from repositories
     private boolean environment; // if port or pipeline are set
     private Long port; //
     private String pipelineEndpoint; // to override default component spring boot service endpoint
+    private String buildContext; // directory containing Dockerfile
 
-    public ServiceInformation(String serviceName, String serviceVersion, String buildContext){
+    /**
+     * @param serviceName the unique name of the Qanary component within the docker-compose context
+     * @param serviceVersion the version of the Qanary component
+     * @param imageName the docker image of the Qanary component
+     */
+    public ComponentInformation(String serviceName, String serviceVersion, String imageName){
        this.serviceName = serviceName;
        this.serviceVersion = serviceVersion;
-       this.buildContext = buildContext;
+       this.imageName = imageName;
 
        this.imagePrefix = "";
        this.environment = false;
@@ -37,6 +45,10 @@ public class ServiceInformation {
         return this.serviceName;
     }
 
+    public String getImageName() {
+        return imageName;
+    }
+
     public Long getPort() {
         return this.port;
     }
@@ -51,6 +63,10 @@ public class ServiceInformation {
 
     public void setImagePrefix(String imagePrefix) {
         this.imagePrefix = imagePrefix;
+    }
+
+    public void setBuildContext(String buildContext) {
+        this.buildContext = buildContext;
     }
 
     public void setPipelineEndpoint(String pipelineEndpoint) {
