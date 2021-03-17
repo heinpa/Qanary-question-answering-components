@@ -6,7 +6,7 @@ import writer.except.DockerComposeWriterException;
 
 import java.util.List;
 
-class TestDockerComposeWriter {
+class DockerComposeWriterTest {
 
     @Test
     void testGetServiceConfigurationFromFile(){

@@ -5,7 +5,7 @@ import writer.helpers.JavaServiceHelper;
 
 import static org.junit.Assert.*;
 
-class TestJavaServiceHelper {
+class JavaServiceHelperTest {
 
     @Test
     void testGetServiceConfigurationFromFile() {
