@@ -18,6 +18,7 @@
 		<docker.image.prefix>qanary</docker.image.prefix>
 		<docker.image.name>qanary_component-ned-dbpedia-spotlight</docker.image.name>
 		<dockerfile-maven-version>1.4.13</dockerfile-maven-version>
+        <junit-jupiter.version>5.7.0</junit-jupiter.version>
 	</properties>
 
 	<dependencies>
@@ -71,6 +72,19 @@
 			<artifactId>apache-jena-libs</artifactId>
 			<type>pom</type>
 			<version>3.0.0</version>
+		</dependency>
+        <!-- JUnit Jupiter Engine to depend on JUnit5 engine and JUnit 5 API -->
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<version>${junit-jupiter.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<!-- JUnit Jupiter Engine to depend on JUnit4 engine and JUnit 4 API -->
+		<dependency>
+			<groupId>org.junit.vintage</groupId>
+			<artifactId>junit-vintage-engine</artifactId>
+			<version>${junit-jupiter.version}</version>
 		</dependency>
 	</dependencies>
 	<build>
