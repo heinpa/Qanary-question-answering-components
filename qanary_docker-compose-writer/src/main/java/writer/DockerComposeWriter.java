@@ -66,7 +66,8 @@ public class DockerComposeWriter {
                 "    ports:\n" +
                 "      - \"" + this.pipelinePort + "\"\n" +
                 "    environment:\n" +
-                "      - \"SERVER_PORT=" + this.pipelinePort + "\"\n";
+                "      - \"SERVER_PORT=" + this.pipelinePort + "\"\n" +
+                "    restart: unless-stopped\n";
     }
 
     /**
@@ -81,7 +82,8 @@ public class DockerComposeWriter {
                 "      - \"" + this.basePort + ":5000\"\n" +
                 "    environment:\n" +
                 "      - \"REACT_APP_HOST=" + this.pipelineHost + "\"\n" +
-                "      - \"REACT_APP_PORT=" + this.pipelinePort + "\"\n";
+                "      - \"REACT_APP_PORT=" + this.pipelinePort + "\"\n" +
+                "    restart: unless-stopped\n";
     }
 
     /**
