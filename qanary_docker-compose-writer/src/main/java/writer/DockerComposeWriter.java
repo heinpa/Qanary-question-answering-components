@@ -17,6 +17,7 @@ public class DockerComposeWriter {
     private static final Logger logger = Logger.getLogger("DockerComposeWriter");
 
     private final String dockerComposePath;
+    private final String rootPath;
     private Long basePort;
     private final boolean includePipelineService;
     private final boolean includeConfigUiService;
@@ -28,7 +29,7 @@ public class DockerComposeWriter {
     private final String pipelinePort;
     private final String configUiImage;
 
-    public DockerComposeWriter(String configFile) throws DockerComposeWriterException {
+    public DockerComposeWriter(String configFile, String rootPath) throws DockerComposeWriterException {
         try {
             logger.log(Level.INFO, "configuration file: {0}", configFile);
 
@@ -40,6 +41,7 @@ public class DockerComposeWriter {
             properties.load(inputStream);
 
             this.dockerComposePath = "docker-compose.yml";
+            this.rootPath = rootPath;
             this.basePort = Long.parseLong(properties.getProperty("basePort"));
             this.includePipelineService = Boolean.parseBoolean(properties.getProperty("includePipelineService"));
             this.pipelineImage = properties.getProperty("pipelineImage");
@@ -64,7 +66,7 @@ public class DockerComposeWriter {
         return "  pipeline:\n" +
                 "    image: " + this.pipelineImage + "\n" +
                 "    ports:\n" +
-                "      - \"" + this.pipelinePort + "\"\n" +
+                "      - \"" + this.pipelinePort + ":" + this.pipelinePort + "\"\n" +
                 "    environment:\n" +
                 "      - \"SERVER_PORT=" + this.pipelinePort + "\"\n" +
                 "    restart: unless-stopped\n";
@@ -137,7 +139,7 @@ public class DockerComposeWriter {
             service.setPipelineEndpoint(pipelineEndpoint);
             return serviceHelper.getServiceSectionAsString(service);
         } catch (DockerComposeWriterException e) {
-            logger.log(Level.WARNING, "could not find the specified configuration for component directory");
+            logger.log(Level.WARNING, "could not find the specified configuration for component directory", e);
         }
         // if something went wrong don't write to docker-compose file
         return "";
@@ -155,7 +157,7 @@ public class DockerComposeWriter {
         Long newPort = this.basePort;
         // the names of directories to be read
         List<String> directories = this.filterExcludedDirectories(
-                this.getAllDirectoriesFromPath("."), this.excludedDirectories); // todo: use classpath
+                this.getAllDirectoriesFromPath(this.rootPath), this.excludedDirectories); 
         // iterate of the subdirectories
         for (String directory : directories) {
             logger.log(Level.INFO, "Reading directory: {0}", directory);
@@ -166,7 +168,7 @@ public class DockerComposeWriter {
             switch (directoryType) {
                 case PYTHON:
                     logger.log(Level.INFO, "writing python section for {0}", directory);
-                    PythonServiceHelper pythonServiceHelper = new PythonServiceHelper(directory);
+                    PythonServiceHelper pythonServiceHelper = new PythonServiceHelper(this.rootPath + directory);
                     // create service section for python component
                     serviceSection = this.getServiceSection(pythonServiceHelper, newPort,
                             this.imagePrefix, this.pipelineHost, this.pipelinePort);
@@ -174,7 +176,7 @@ public class DockerComposeWriter {
                     break;
                 case JAVA:
                     logger.log(Level.INFO, "writing java section for {0}", directory);
-                    JavaServiceHelper javaServiceHelper = new JavaServiceHelper(directory);
+                    JavaServiceHelper javaServiceHelper = new JavaServiceHelper(this.rootPath + directory);
                     // create service section for java component
                     serviceSection = this.getServiceSection(javaServiceHelper, newPort,
                             this.imagePrefix, this.pipelineHost, this.pipelinePort);
@@ -234,6 +236,8 @@ public class DockerComposeWriter {
      * @return the component type assigned to the directory
      */
     public ComponentType identifyComponentType(String directory) throws DockerComposeWriterException {
+        //TODO: implement better handling of file paths
+        directory = this.rootPath + directory;
         File root = new File(directory);
         try {
             // search the directory recursively until it can be identified

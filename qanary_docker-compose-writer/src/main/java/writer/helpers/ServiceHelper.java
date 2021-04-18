@@ -24,9 +24,8 @@ public interface ServiceHelper {
         String section = "" +
                 "  "+ componentInformation.getServiceName() + ":\n" +
                 "    image: " + componentInformation.getImagePrefix() + componentInformation.getImageName() + ":" + componentInformation.getServiceVersion() + "\n" +
-                "    network_mode: host\n" +
                 "    ports: \n" +
-                "      - \""+ componentInformation.getPort() + "\"\n" + 
+                "      - \""+ componentInformation.getPort() + ":" + componentInformation.getPort() + "\"\n" + 
                 "    restart: unless-stopped\n";
 
         // if additional environment variables are required

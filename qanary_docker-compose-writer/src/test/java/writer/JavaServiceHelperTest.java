@@ -1,6 +1,9 @@
 package writer;
 
+import writer.except.DockerComposeWriterException;
+
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Disabled;
 import writer.helpers.JavaServiceHelper;
 
 import static org.junit.Assert.*;
@@ -8,10 +11,12 @@ import static org.junit.Assert.*;
 class JavaServiceHelperTest {
 
     @Test
-    void testGetServiceConfigurationFromFile() {
-        fail();
+    void testCreateDockerComposeFile() throws DockerComposeWriterException {
+        DockerComposeWriter dockerComposeWriter = new DockerComposeWriter("/config.properties", "/home/paul/QAS/Qanary-question-answering-components/");
+        dockerComposeWriter.writeComposeFile();
     }
 
+    @Disabled
     @Test
     void testGetServiceSectionAsString() {
         // STANDARD USE CASE
