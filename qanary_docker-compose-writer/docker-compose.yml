@@ -72,7 +72,7 @@ services:
       - "SERVER_PORT=43749"
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   smaph-erd:
-    image: heipa/smaph-erd:1.0.0
+    image: heipa/smaph-erd:2.0.0
     ports: 
       - "43751:43751"
     restart: unless-stopped
