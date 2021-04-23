@@ -24,7 +24,7 @@ public interface ServiceHelper {
         String section = "" +
                 "  "+ componentInformation.getServiceName() + ":\n" +
                 "    image: " + componentInformation.getImagePrefix() + componentInformation.getImageName() + ":" + componentInformation.getServiceVersion() + "\n" +
-                "    ports: \n" +
+                "    ports:\n" +
                 "      - \""+ componentInformation.getPort() + ":" + componentInformation.getPort() + "\"\n" + 
                 "    restart: unless-stopped\n";
 

@@ -17,7 +17,7 @@ services:
     restart: unless-stopped
   qanary_component-ned-dbpedia-spotlight:
     image: heipa/qanary_component-ned-dbpedia-spotlight:2.2.0
-    ports: 
+    ports:
       - "43742:43742"
     restart: unless-stopped
     environment: 
@@ -25,7 +25,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   ner-ambiverse:
     image: heipa/ner-ambiverse:2.0.0
-    ports: 
+    ports:
       - "43743:43743"
     restart: unless-stopped
     environment: 
@@ -33,7 +33,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   ner-babelfy:
     image: heipa/ner-babelfy:2.0.0
-    ports: 
+    ports:
       - "43744:43744"
     restart: unless-stopped
     environment: 
@@ -41,7 +41,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   fox-ner:
     image: heipa/fox-ner:2.0.0
-    ports: 
+    ports:
       - "43746:43746"
     restart: unless-stopped
     environment: 
@@ -49,7 +49,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   dbpedia-spotlight-ner:
     image: heipa/dbpedia-spotlight-ner:2.0.0
-    ports: 
+    ports:
       - "43747:43747"
     restart: unless-stopped
     environment: 
@@ -57,7 +57,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   qanary_component-ner-comiccharacternamesimplenamedentityrecognizer:
     image: heipa/qanary_component-ner-comiccharacternamesimplenamedentityrecognizer:1.0.0
-    ports: 
+    ports:
       - "43748:43748"
     restart: unless-stopped
     environment: 
@@ -65,7 +65,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   qanary_component_answer-type-classifier:
     image: heipa/qanary_component_answer-type-classifier:0.1.1
-    ports: 
+    ports:
       - "43749:43749"
     restart: unless-stopped
     environment: 
@@ -73,7 +73,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   smaph-erd:
     image: heipa/smaph-erd:1.0.0
-    ports: 
+    ports:
       - "43751:43751"
     restart: unless-stopped
     environment: 
@@ -81,7 +81,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   ner-ontotext:
     image: heipa/ner-ontotext:2.0.0
-    ports: 
+    ports:
       - "43752:43752"
     restart: unless-stopped
     environment: 
@@ -89,7 +89,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   ner-tagme:
     image: heipa/ner-tagme:2.0.0
-    ports: 
+    ports:
       - "43753:43753"
     restart: unless-stopped
     environment: 
@@ -97,7 +97,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   lucene-linker-nerd:
     image: heipa/lucene-linker-nerd:1.0.0
-    ports: 
+    ports:
       - "43754:43754"
     restart: unless-stopped
     environment: 
@@ -105,7 +105,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   ner-entity-classifier2:
     image: heipa/ner-entity-classifier2:2.0.0
-    ports: 
+    ports:
       - "43755:43755"
     restart: unless-stopped
     environment: 
@@ -113,7 +113,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   annotation-of-spot-property:
     image: heipa/annotation-of-spot-property:2.0.0
-    ports: 
+    ports:
       - "43756:43756"
     restart: unless-stopped
     environment: 
@@ -121,7 +121,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   qanary_component-qbe-qanswer:
     image: heipa/qanary_component-qbe-qanswer:0.1.0
-    ports: 
+    ports:
       - "43757:43757"
     restart: unless-stopped
     environment: 
@@ -129,7 +129,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   qanary-component-rel-relnliod:
     image: heipa/qanary-component-rel-relnliod:2.0.0
-    ports: 
+    ports:
       - "43758:43758"
     restart: unless-stopped
     environment: 
@@ -137,7 +137,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   query-builder:
     image: heipa/query-builder:2.0.0
-    ports: 
+    ports:
       - "43759:43759"
     restart: unless-stopped
     environment: 
@@ -145,7 +145,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   qanary_component-rel-rematch:
     image: heipa/qanary_component-rel-rematch:2.0.0
-    ports: 
+    ports:
       - "43760:43760"
     restart: unless-stopped
     environment: 
@@ -153,7 +153,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   ner-aylien:
     image: heipa/ner-aylien:2.0.0
-    ports: 
+    ports:
       - "43761:43761"
     restart: unless-stopped
     environment: 
@@ -161,7 +161,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   qanary_component-asr-kaldi:
     image: heipa/qanary_component-asr-kaldi:1.0.0
-    ports: 
+    ports:
       - "43762:43762"
     restart: unless-stopped
     environment: 
@@ -169,7 +169,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   annotation-of-spot-class:
     image: heipa/annotation-of-spot-class:2.0.0
-    ports: 
+    ports:
       - "43763:43763"
     restart: unless-stopped
     environment: 
@@ -177,7 +177,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   ned-babelfy:
     image: heipa/ned-babelfy:2.0.0
-    ports: 
+    ports:
       - "43764:43764"
     restart: unless-stopped
     environment: 
@@ -185,7 +185,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   ner-meaning-cloud:
     image: heipa/ner-meaning-cloud:2.0.0
-    ports: 
+    ports:
       - "43765:43765"
     restart: unless-stopped
     environment: 
@@ -193,7 +193,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   ned-tagme:
     image: heipa/ned-tagme:2.1.0
-    ports: 
+    ports:
       - "43766:43766"
     restart: unless-stopped
     environment: 
@@ -201,7 +201,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   ner-dandelion:
     image: heipa/ner-dandelion:2.0.0
-    ports: 
+    ports:
       - "43767:43767"
     restart: unless-stopped
     environment: 
@@ -209,7 +209,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   language-detection-shuyo:
     image: heipa/language-detection-shuyo:2.0.0
-    ports: 
+    ports:
       - "43768:43768"
     restart: unless-stopped
     environment: 
@@ -217,7 +217,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   qb-comic-character-alterego:
     image: heipa/qb-comic-character-alterego:1.1.0
-    ports: 
+    ports:
       - "43769:43769"
     restart: unless-stopped
     environment: 
@@ -225,7 +225,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   ner-text-razor:
     image: heipa/ner-text-razor:2.0.0
-    ports: 
+    ports:
       - "43770:43770"
     restart: unless-stopped
     environment: 
@@ -233,7 +233,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   entity-classifier-ner:
     image: heipa/entity-classifier-ner:2.0.0
-    ports: 
+    ports:
       - "43771:43771"
     restart: unless-stopped
     environment: 
@@ -241,7 +241,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   ned-ambiverse:
     image: heipa/ned-ambiverse:2.0.0
-    ports: 
+    ports:
       - "43772:43772"
     restart: unless-stopped
     environment: 
@@ -249,7 +249,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   qanary_component-ner-stanford:
     image: heipa/qanary_component-ner-stanford:2.0.1
-    ports: 
+    ports:
       - "43773:43773"
     restart: unless-stopped
     environment: 
@@ -257,7 +257,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   qanary_component-qb-sparqlexecuter:
     image: heipa/qanary_component-qb-sparqlexecuter:2.0.0
-    ports: 
+    ports:
       - "43774:43774"
     restart: unless-stopped
     environment: 
@@ -265,7 +265,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   agdistis-ned:
     image: heipa/agdistis-ned:2.0.0
-    ports: 
+    ports:
       - "43775:43775"
     restart: unless-stopped
     environment: 
@@ -273,7 +273,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   diambiguation-property-okbqa:
     image: heipa/diambiguation-property-okbqa:2.0.0
-    ports: 
+    ports:
       - "43776:43776"
     restart: unless-stopped
     environment: 
@@ -281,7 +281,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   qanary_component-qb-simplerealnameofsuperhero:
     image: heipa/qanary_component-qb-simplerealnameofsuperhero:2.0.2
-    ports: 
+    ports:
       - "43777:43777"
     restart: unless-stopped
     environment: 
@@ -289,7 +289,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   diambiguation-class-okbqa:
     image: heipa/diambiguation-class-okbqa:2.0.0
-    ports: 
+    ports:
       - "43778:43778"
     restart: unless-stopped
     environment: 
@@ -297,7 +297,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   ned-ontotext:
     image: heipa/ned-ontotext:2.0.0
-    ports: 
+    ports:
       - "43779:43779"
     restart: unless-stopped
     environment: 
@@ -305,7 +305,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   qanary_component-rel-relationlinker2:
     image: heipa/qanary_component-rel-relationlinker2:2.0.0
-    ports: 
+    ports:
       - "43780:43780"
     restart: unless-stopped
     environment: 
@@ -313,7 +313,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   qb-sina:
     image: heipa/qb-sina:2.0.1
-    ports: 
+    ports:
       - "43781:43781"
     restart: unless-stopped
     environment: 
@@ -321,7 +321,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   ned-aylien:
     image: heipa/ned-aylien:2.0.0
-    ports: 
+    ports:
       - "43782:43782"
     restart: unless-stopped
     environment: 
@@ -329,7 +329,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   monolithic-wrapper:
     image: heipa/monolithic-wrapper:2.0.0
-    ports: 
+    ports:
       - "43783:43783"
     restart: unless-stopped
     environment: 
@@ -337,7 +337,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   ned-dandelion:
     image: heipa/ned-dandelion:2.0.0
-    ports: 
+    ports:
       - "43784:43784"
     restart: unless-stopped
     environment: 
@@ -345,7 +345,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   ned-meaning-cloud:
     image: heipa/ned-meaning-cloud:1.0.0
-    ports: 
+    ports:
       - "43785:43785"
     restart: unless-stopped
     environment: 
@@ -353,7 +353,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   answer_type_classifier:
     image: heipa/answer_type_classifier:0.1.0
-    ports: 
+    ports:
       - "43786:43786"
     restart: unless-stopped
     environment: 
@@ -361,7 +361,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   qanary-component-cls-clsnliod:
     image: heipa/qanary-component-cls-clsnliod:2.0.0
-    ports: 
+    ports:
       - "43787:43787"
     restart: unless-stopped
     environment: 
@@ -369,7 +369,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   alchemy-nerd:
     image: heipa/alchemy-nerd:2.0.0
-    ports: 
+    ports:
       - "43788:43788"
     restart: unless-stopped
     environment: 
@@ -377,7 +377,7 @@ services:
       - "SPRING_BOOT_ADMIN_URL=http://webengineering.ins.hs-anhalt.de:43740"
   qanary-component-rel-relationlinker1:
     image: heipa/qanary-component-rel-relationlinker1:2.0.0
-    ports: 
+    ports:
       - "43789:43789"
     restart: unless-stopped
     environment: 

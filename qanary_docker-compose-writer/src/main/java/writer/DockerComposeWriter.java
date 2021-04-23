@@ -1,6 +1,7 @@
 package writer;
 
 import org.apache.commons.io.FileUtils;
+
 import writer.except.DockerComposeWriterException;
 import writer.helpers.JavaServiceHelper;
 import writer.helpers.PythonServiceHelper;
@@ -160,6 +161,7 @@ public class DockerComposeWriter {
                 this.getAllDirectoriesFromPath(this.rootPath), this.excludedDirectories); 
         // iterate of the subdirectories
         for (String directory : directories) {
+            directory = this.rootPath+"/"+directory;
             logger.log(Level.INFO, "Reading directory: {0}", directory);
             String serviceSection = "";
             // determine the component type
@@ -168,7 +170,7 @@ public class DockerComposeWriter {
             switch (directoryType) {
                 case PYTHON:
                     logger.log(Level.INFO, "writing python section for {0}", directory);
-                    PythonServiceHelper pythonServiceHelper = new PythonServiceHelper(this.rootPath + directory);
+                    PythonServiceHelper pythonServiceHelper = new PythonServiceHelper(directory);
                     // create service section for python component
                     serviceSection = this.getServiceSection(pythonServiceHelper, newPort,
                             this.imagePrefix, this.pipelineHost, this.pipelinePort);
@@ -176,7 +178,7 @@ public class DockerComposeWriter {
                     break;
                 case JAVA:
                     logger.log(Level.INFO, "writing java section for {0}", directory);
-                    JavaServiceHelper javaServiceHelper = new JavaServiceHelper(this.rootPath + directory);
+                    JavaServiceHelper javaServiceHelper = new JavaServiceHelper(directory);
                     // create service section for java component
                     serviceSection = this.getServiceSection(javaServiceHelper, newPort,
                             this.imagePrefix, this.pipelineHost, this.pipelinePort);
@@ -236,8 +238,6 @@ public class DockerComposeWriter {
      * @return the component type assigned to the directory
      */
     public ComponentType identifyComponentType(String directory) throws DockerComposeWriterException {
-        //TODO: implement better handling of file paths
-        directory = this.rootPath + directory;
         File root = new File(directory);
         try {
             // search the directory recursively until it can be identified
