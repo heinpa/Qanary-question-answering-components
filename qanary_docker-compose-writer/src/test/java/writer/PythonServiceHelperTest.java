@@ -1,15 +1,14 @@
 package writer;
 
 import org.junit.jupiter.api.Test;
-
+import writer.helpers.PythonServiceHelper;
 import writer.except.DockerComposeWriterException;
-import writer.helpers.JavaServiceHelper;
+import java.nio.file.Paths;
 
 import static org.junit.Assert.*;
 
-import java.nio.file.Paths;
 
-class JavaServiceHelperTest {
+class PythonServiceHelperTest {
 
     @Test
     void testGetServiceSectionAsString() {
@@ -36,7 +35,7 @@ class JavaServiceHelperTest {
         assertNotNull(service.getImagePrefix());
 
         // instantiate java writer to create service section
-        JavaServiceHelper javaServiceHelper = new JavaServiceHelper(directory);
+        PythonServiceHelper pythonServiceHelper = new PythonServiceHelper(directory);
         String expected = "" +
                 "  "+name + ":\n" +
                 "    image: " + imagePrefix + name + ":" + version + "\n" +
@@ -47,24 +46,22 @@ class JavaServiceHelperTest {
                 "      - \"SERVER_PORT="+port+"\"\n" +
                 "      - \"SPRING_BOOT_ADMIN_URL="+pipelineEndpoint+"\"\n";
 
-        String actual = javaServiceHelper.getServiceSectionAsString(service);
+        String actual = pythonServiceHelper.getServiceSectionAsString(service);
 
         assertEquals(expected,actual);
-    }        
+    }
 
     @Test
     void testGetServiceCoinfiguration() throws DockerComposeWriterException {
 
         String abs = Paths.get("../").toAbsolutePath().normalize().toString();
-        System.out.println(abs);
-        String javaDirectory= abs+"/qanary_component-NED-DBpedia-Spotlight";
+        String pythonDirectory = abs+"/qanary_component-Python-QC-EAT-classifier";
 
-        JavaServiceHelper helper = new JavaServiceHelper(javaDirectory);
+        PythonServiceHelper helper = new PythonServiceHelper(pythonDirectory);
         ComponentInformation information = helper.getServiceConfiguration();
 
-        assertEquals("qanary_component-ned-dbpedia-spotlight", information.getServiceName());
-        assertEquals("qanary_component-ned-dbpedia-spotlight", information.getImageName());
+        assertEquals("answer_type_classifier", information.getServiceName());
+        assertEquals("answer_type_classifier", information.getImageName());
         assertNotNull(information.getServiceVersion());
     }
 }
-        
