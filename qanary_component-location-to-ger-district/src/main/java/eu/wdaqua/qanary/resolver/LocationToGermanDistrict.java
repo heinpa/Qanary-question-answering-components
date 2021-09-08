@@ -159,10 +159,14 @@ public class LocationToGermanDistrict extends QanaryComponent {
 				logger.info("entity is no district, removing ...");
 				this.removeEntityFromTriplestore(foundEntity);
 			}
+			if (relatedDistricts.size() == 1) {
+				this.addDistrictToTriplestore(relatedDistricts.get(0), myQanaryMessage, myQanaryUtils, "containing");
+			} else {
 			// add related districts to the triplestore
-			for (FoundEntity relatedDistrict : relatedDistricts) {
-				logger.info("adding {} to triplestore", relatedDistrict.getSurfaceForm());
-				this.addDistrictToTriplestore(relatedDistrict, myQanaryMessage, myQanaryUtils);
+				for (FoundEntity relatedDistrict : relatedDistricts) {
+					logger.info("adding {} to triplestore", relatedDistrict.getSurfaceForm());
+					this.addDistrictToTriplestore(relatedDistrict, myQanaryMessage, myQanaryUtils, "located_in");
+				}
 			}
 		}
 
@@ -280,7 +284,8 @@ public class LocationToGermanDistrict extends QanaryComponent {
 	public void addDistrictToTriplestore(
 			FoundEntity district,
 			QanaryMessage myQanaryMessage,
-			QanaryUtils myQanaryUtils) throws SparqlQueryFailed {
+			QanaryUtils myQanaryUtils,
+			String targetRelation) throws SparqlQueryFailed {
 
 		logger.info("store data in graph {} of Qanary triplestore endpoint {}", //
 				myQanaryMessage.getValues().get(myQanaryMessage.getOutGraph()), //
@@ -304,7 +309,10 @@ public class LocationToGermanDistrict extends QanaryComponent {
 				+ "	   qa:hasID ?qid " // 
 				+ "  ] . " //
 				+ "  ?a qa:hasConfidence ?score . " // 
-				+ "  ?a oa:hasTarget ?target . " // 
+				+ "  ?a oa:hasTarget [ " //
+				+ "    rdfs:label ?target ; " // 
+				+ "    qa:targetRelation ?targetRelation " // 
+				+ "  ] . " //
 				+ "  ?a oa:annotatedBy ?component  . " //
 				+ "  ?a oa:annotatedAt ?time . " //
 				+ "} " //
@@ -315,7 +323,8 @@ public class LocationToGermanDistrict extends QanaryComponent {
 				+ "  BIND (\""+district.getSurfaceForm()+"\"^^xsd:string AS ?label) . " // TODO: type
 				+ "  BIND (\""+district.getDistrictKey()+"\"^^xsd:string: AS ?qid) . " // 
 				+ "  BIND (\""+district.getScore()+"\"^^xsd:string AS ?score) . " //
-				+ "  BIND (\""+district.getTargetString()+"\"^^xsd:string AS ?target) . " //
+				+ "  BIND (\""+district.getTargetString()+"\"^^xsd:string AS ?target) ." //
+				+ "  BIND (\""+targetRelation+"\"^^xsd:string AS ?targetRelation) . " // 
 				//TODO: this might be misleading as target is the original surface form and not
 				// the current district as it would be needed to connect numbers to specific places
 				+ "  BIND (<urn:qanary:"+this.applicationName+"> AS ?component) . " //
