@@ -2,20 +2,21 @@ package eu.wdaqua.qanary.resolver;
 
 class FoundEntity {
 
-	private final String wikidataResource;
+	private final String wikidataResource; 
 	private String triplestoreId = null;
-	private final String surfaceForm;
+	private String surfaceForm; // language specific label of the location
 	private final float score;
 	private String annotatorComponent;
-	private String target;
-	private int districtKey;
+	private final String target; // part of the question string 
+	private int key;
+	private LocationType locationType;
 	
 	public FoundEntity(
 			String wikidataResource,
-			String surfaceForm,
+			String target,
 			float score) {
 		this.wikidataResource = wikidataResource;
-		this.surfaceForm = surfaceForm;
+		this.target = target;
 		this.score = score;
 	}
 
@@ -27,12 +28,16 @@ class FoundEntity {
 		this.triplestoreId = triplestoreId;
 	}
 
-	public void setTargetString(String target) {
-		this.target = target;
+	public void setKey(int key) {
+		this.key = key;
 	}
 
-	public void setDistrictKey(int key) {
-		this.districtKey = key;
+	public void setLocationType(LocationType type) {
+		this.locationType = type;
+	}
+
+	public void setSurfaceForm(String surfaceForm) {
+		this.surfaceForm = surfaceForm;
 	}
 
 	public String getWikidataResource() {
@@ -63,8 +68,18 @@ class FoundEntity {
 		return this.target;
 	}
 
-	public int getDistrictKey() {
-		return this.districtKey;
+	public int getKey() {
+		return this.key;
 	}
 
+	public String getLocationType() {
+		switch (this.locationType) {
+			case STATE:
+				return "dbr:States_of_Germany";
+			case DISTRICT:
+				return "dbr:Districts_of_Germany";
+			default:
+				return null;
+		}
+	}
 }

@@ -11,13 +11,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
 
 import eu.wdaqua.qanary.commons.QanaryMessage;
 import eu.wdaqua.qanary.commons.QanaryQuestion;
 import eu.wdaqua.qanary.commons.QanaryUtils;
 import eu.wdaqua.qanary.component.QanaryComponent;
 import eu.wdaqua.qanary.exceptions.SparqlQueryFailed;
+
+enum LocationType {
+	DISTRICT, STATE
+}
 
 
 @Component
@@ -40,10 +43,9 @@ public class LocationToGermanDistrict extends QanaryComponent {
 	}
 
 	/**
-	 * implement this method encapsulating the functionality of your Qanary
-	 * component, some helping notes w.r.t. the typical 3 steps of implementing a
-	 * Qanary component are included in the method (you might remove all of them)
-	 * 
+	 * encapsulates the functionality of LocationToGermanDistrict
+	 * component	 
+	 *
 	 * @throws SparqlQueryFailed
 	 */
 	@Override
@@ -52,14 +54,12 @@ public class LocationToGermanDistrict extends QanaryComponent {
 
 		QanaryUtils myQanaryUtils = this.getUtils(myQanaryMessage);
 
-		// STEP 1: get the required data from the Qanary triplestore (the global process memory)
-
-		// if required, then fetch the origin question (here the question is a
+		// if required fetch the origin question (here the question is a
 		// textual/String question)
 		QanaryQuestion<String> myQanaryQuestion = new QanaryQuestion<String>(myQanaryMessage);
 		String questionText = myQanaryQuestion.getTextualRepresentation();
 
-		// TODO: get the question language for this question
+		// get the question language for this question
 		// if none can be found use the default
 		String selectLanguage = "" //
 				+ "PREFIX oa: <http://www.w3.org/ns/openannotation/core/> " //
@@ -93,7 +93,7 @@ public class LocationToGermanDistrict extends QanaryComponent {
 				+ "FROM <" + myQanaryMessage.getInGraph().toString() + "> " // the currently used graph
 				+ "WHERE { " //
 				+ "    ?annotation     oa:hasBody   ?wikidataResource ." // the entity in question
-				+ "    ?annotation     qa:score     ?annotationScore ." //
+				+ "    ?annotation     qa:score     ?annotationScore ." // confidence 
 				+ "    ?annotation     oa:hasTarget ?target ." //
 				+ "    ?target     oa:hasSource    <" + myQanaryQuestion.getUri().toString() + "> ." // annotated for the current question
 				+ "    ?target     oa:hasSelector  ?textSelector ." //
@@ -102,24 +102,10 @@ public class LocationToGermanDistrict extends QanaryComponent {
 				+ "    ?textSelector   oa:end      ?end ." //
 				+ "}";
 
-//		String selectNamedEntities = "" // define your SPARQL SELECT query here
-//				+ "PREFIX oa: <http://www.w3.org/ns/openannotation/core/> " //
-//				+ "PREFIX qa: <http://www.wdaqua.eu/qa#> " //
-//				+ "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " //
-//				+ "PREFIX dbo: <http://dbpedia.org/ontology/> " //
-//				+ "SELECT * " // 
-//				+ "FROM <" + myQanaryMessage.getInGraph().toString() + "> " // the currently used graph
-//				+ "WHERE { " //
-//				+ "    ?annotation	a	qa:AnnotationOfInstanceLocation ." //
-//				+ "    ?annotation     oa:hasBody	?body ." // 
-//				+ "    ?body qa:hasID ?qid . " // the entity in question
-//				+ "    ?body dbo:type ?locationType . " // the entity in question
-//				+ "    ?annotation     oa:hasTarget ?target . " // the substring with the entity
-//				+ "    ?annotation	qa:hasConfidence ?score . " //
-//				+ "}";
-
 		ResultSet resultset = myQanaryUtils.selectFromTripleStore(selectNamedEntities);
 		List<FoundEntity> foundEntities = new LinkedList<FoundEntity>();
+
+		// prepare identified entities for processing
 		while (resultset.hasNext()) {
 			QuerySolution tupel = resultset.next();
 			String triplestoreId = tupel.get("annotation").toString();
@@ -132,51 +118,96 @@ public class LocationToGermanDistrict extends QanaryComponent {
 					.substring(0,tupel.get("annotationScore").toString().indexOf("^^"))); //float?
 			logger.info("score: {}", score);
 
+			// find the part (substring) of the question string that was annotated 
+			// i.e. the name of a location 
 			int start =  Integer.parseInt(tupel.get("start").toString()
 					.substring(0,tupel.get("start").toString().indexOf("^^")));
 			int end =  Integer.parseInt(tupel.get("end").toString()
 					.substring(0,tupel.get("end").toString().indexOf("^^")));
-			logger.info("triplestoreId: {}", triplestoreId);
+			String target = questionText.substring(start, end);
+			logger.info("target in question string: {}", target);
 
-			String surfaceForm = questionText.substring(start, end);
-			logger.info("surfaceForm: {}", surfaceForm);
-
-
-			// create an object that holds the entity and later the districts
-			FoundEntity foundEntity = new FoundEntity(wikidataResource, surfaceForm, score);
+			// create an object that holds the entity and additional information
+			FoundEntity foundEntity = new FoundEntity(wikidataResource, target, score);
 			foundEntity.setTriplestoreId(triplestoreId);
 			foundEntities.add(foundEntity);
 		}
 
-		// STEP 2: compute new knowledge about the given question
+		// iterate over all identified entities to find locations in Germany.
+		
+		// if a location is not a district or federal state itself then check if it
+		// contains one or multiple districts (in case of a region) or if it is 
+		// located in a district (like specific places/streets etc.)
 		for (FoundEntity foundEntity : foundEntities) {
-			logger.info("find related districts for {}", foundEntity.getSurfaceForm());
+
 			// get a list of related districts
+			logger.info("find related districts for {}", foundEntity.getTargetString());
 			List<FoundEntity> relatedDistricts = this.findRelatedDistricts(foundEntity, questionLanguage);
 			logger.info("found {} related districts", relatedDistricts.size());
-			// if the entity is not a district itself then remove it from the triplestore
-			if (!this.isDistrictOfGermany(foundEntity)) {
-				logger.info("entity is no district, removing ...");
-				this.removeEntityFromTriplestore(foundEntity);
+			// get the language-specific name of the entity
+			try {
+				String surfaceForm = this.findSurfaceForm(foundEntity, questionLanguage);
+				foundEntity.setSurfaceForm(surfaceForm);
+			} catch (Exception e) {
+				foundEntity.setSurfaceForm(foundEntity.getTargetString());
+				logger.error(e.getLocalizedMessage());
 			}
+
+			// if the entity itself is a fedral state of Germany annotate it as possible solution
+			if (this.isFederalStateOfGermnay(foundEntity)) {
+				logger.info("{} ({}) is a German federal state", foundEntity.getSurfaceForm(), foundEntity.getQID());
+				foundEntity.setLocationType(LocationType.STATE);
+				try {
+					int key = this.findRegionalKey(foundEntity); // federal states are identified with a regional key
+					foundEntity.setKey(key);
+					this.addDistrictToTriplestore(foundEntity, myQanaryMessage, myQanaryUtils, "containing");
+				} catch (Exception e) {
+					// don't add locations without key as they cannot be used later
+					// TODO: this should be optional for new application contexts
+					logger.error("information for is missing for {} ({}). Not added to resutls", foundEntity.getSurfaceForm(), foundEntity.getQID());
+					logger.debug(e.getLocalizedMessage());
+				}
+			// if the entity itself is a district of Germany annotate it as possible solution
+			} else if (this.isDistrictOfGermany(foundEntity)) {
+				logger.info("{} ({}) is a German district", foundEntity.getSurfaceForm(), foundEntity.getQID());
+				foundEntity.setLocationType(LocationType.DISTRICT);
+				try {
+					int key = this.findDistrictKey(foundEntity); // districts are identified with a district key
+					foundEntity.setKey(key);
+					this.addDistrictToTriplestore(foundEntity, myQanaryMessage, myQanaryUtils, "containing");
+				} catch (Exception e) {
+					logger.error("information for is missing for {} ({}). Not added to resutls",foundEntity.getSurfaceForm(), foundEntity.getQID());
+					logger.debug(e.getLocalizedMessage());
+				}
+			} else {
+				// if the entity is not a district itself then remove it from the triplestore
+				logger.info("{} ({}) is not a district!", foundEntity.getSurfaceForm(), foundEntity.getQID());
+				// TODO: enable once implemented
+				// this.removeEntityFromTriplestore(foundEntity);
+			}
+			// if only one related district is found assume that it contains the target 
 			if (relatedDistricts.size() == 1) {
 				this.addDistrictToTriplestore(relatedDistricts.get(0), myQanaryMessage, myQanaryUtils, "containing");
+			// if multiple are found they are likely located in the target region
 			} else {
-			// add related districts to the triplestore
 				for (FoundEntity relatedDistrict : relatedDistricts) {
-					logger.info("adding {} to triplestore", relatedDistrict.getSurfaceForm());
+					logger.info("adding {} to triplestore", relatedDistrict.getWikidataResource());
 					this.addDistrictToTriplestore(relatedDistrict, myQanaryMessage, myQanaryUtils, "located_in");
 				}
 			}
 		}
-
-		// STEP 3: store computed knowledge about the given question into the Qanary triplestore 
-		// (the global process memory)
-
-
 		return myQanaryMessage;
 	}
 
+	/*
+	 * find German districts related to a given location. They can either contain the location
+	 * (in case of a region) or be lcoated in a location (places, streets, etc.).
+	 * Names for related districts are selected based on the question language.
+	 *
+	 * @param foundEntity
+	 * @param questionLanguage
+	 * @return 
+	 */
 	public List<FoundEntity> findRelatedDistricts(FoundEntity foundEntity, String questionLanguage) {
 
 		String wikidataResource = foundEntity.getWikidataResource();
@@ -191,7 +222,7 @@ public class LocationToGermanDistrict extends QanaryComponent {
 			+ "    <"+wikidataResource+"> " //
 			+ "  } " //
 			+ "  VALUES ?districtConcept { "// there are two district concepts
-			+ "	wd:Q149621 " //
+			// + "	wd:Q149621 " // a more generalized district concept; does not guarantee key
 			+ "	wd:Q106658 " //
 			+ "  } " //
 			+ "  ?location wdt:P131+ ?district . " //
@@ -215,10 +246,11 @@ public class LocationToGermanDistrict extends QanaryComponent {
 					float score = foundEntity.getScore();
 					String surfaceForm = tupel.get("labelLang").toString()
 						.substring(0,tupel.get("labelLang").toString().indexOf("@"));
-					FoundEntity relatedDistrict = new FoundEntity(districtWikidataResource, surfaceForm, score);
-					relatedDistrict.setDistrictKey(this.findDistrictKey(relatedDistrict));
-					relatedDistrict.setTargetString(foundEntity.getSurfaceForm()); // use the original found substring (might be required for follow up)
-					logger.info("adding {} to relatedDistricts", relatedDistrict.getSurfaceForm());
+					FoundEntity relatedDistrict = new FoundEntity(districtWikidataResource, foundEntity.getTargetString(), score);
+					relatedDistrict.setKey(this.findDistrictKey(relatedDistrict));
+					relatedDistrict.setSurfaceForm(surfaceForm);
+					relatedDistrict.setLocationType(LocationType.DISTRICT);
+					logger.info("adding {} ({}) to relatedDistricts", relatedDistrict.getSurfaceForm(), relatedDistrict.getQID());
 					relatedDistricts.add(relatedDistrict);
 				}
 			} else {
@@ -231,9 +263,62 @@ public class LocationToGermanDistrict extends QanaryComponent {
 			qexec.close();
 		}
 		return relatedDistricts;
-
 	}
 
+	/*
+	 * find the language specific name (label) of a location.
+	 *
+	 * @param foundEntity
+	 * @param questionLanguage
+	 * @return 
+	 */
+	public String findSurfaceForm(FoundEntity foundEntity, String questionLanguage) {
+		String wikidataResource = foundEntity.getWikidataResource();
+		String wikidataGetQuery = ""
+			+ "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> " //
+			+ "SELECT ?labelLang WHERE { " //
+			+ "   <"+wikidataResource+"> rdfs:label ?labelLang . " //
+			+ "  FILTER( LANG(?labelLang) = \""+questionLanguage+"\" ) " // 
+			+ "} ";
+
+		String wikidataEndpoint = "https://query.wikidata.org/sparql";
+		QueryExecution qexec = QueryExecutionFactory.sparqlService(wikidataEndpoint, wikidataGetQuery);
+		ResultSet result = qexec.execSelect();
+		QuerySolution tupel = result.next();
+		String surfaceForm = tupel.get("labelLang").toString()
+			.substring(0,tupel.get("labelLang").toString().indexOf("@"));
+		return surfaceForm;
+	}
+
+	/*
+	 * find the regional key of a German federal state.
+	 *
+	 * @param foundEntity
+	 * @return
+	 */
+	public int findRegionalKey(FoundEntity foundEntity) {
+		String wikidataResource = foundEntity.getWikidataResource();
+		String wikidataGetQuery = ""
+			+ "PREFIX wdt: <http://www.wikidata.org/prop/direct/> " //
+			+ "SELECT ?key WHERE { " //
+			+ "  <"+wikidataResource+"> wdt:P1388 ?key . " //
+			+ "} ";
+
+		String wikidataEndpoint = "https://query.wikidata.org/sparql";
+		QueryExecution qexec = QueryExecutionFactory.sparqlService(wikidataEndpoint, wikidataGetQuery);
+		ResultSet result = qexec.execSelect();
+		QuerySolution tupel = result.next();
+		int key = Integer.parseInt(tupel.get("key").toString());  // check?
+		logger.info("found key: {}", key);
+		return key;
+	}
+
+	/*
+	 * find the key of a German district.
+	 *
+	 * @param foundEntity
+	 * @return
+	 */
 	public int findDistrictKey(FoundEntity foundEntity) {
 		String wikidataResource = foundEntity.getWikidataResource();
 		String wikidataGetQuery = ""
@@ -251,7 +336,13 @@ public class LocationToGermanDistrict extends QanaryComponent {
 		return key;
 	}
 
-	public boolean isDistrictOfGermany (FoundEntity foundEntity) {
+	/*
+	 * determine if an entity is a federal state of Germany.
+	 *
+	 * @param foundEntity
+	 * @return
+	 */
+	public boolean isFederalStateOfGermnay (FoundEntity foundEntity) {
 		String wikidataResource = foundEntity.getWikidataResource();
 		String wikidataAskQuery = ""
 			+ "PREFIX wdt: <http://www.wikidata.org/prop/direct/> "
@@ -262,7 +353,7 @@ public class LocationToGermanDistrict extends QanaryComponent {
 			+ "    <"+wikidataResource+"> "
 			+ "  } "
 			+ "  VALUES ?districtConcept { "
-			+ "    wd:Q106658 " // denotes a district of Germany as opposed to more generic definition
+			+ "    wd:Q1221156" // denotes a federal state of Germany as opposed to more generic definition
 			+ "  } "
 			+ "  ?location wdt:P31/wdt:P279* ?districtConcept .  "
 			+ "} ";
@@ -281,6 +372,52 @@ public class LocationToGermanDistrict extends QanaryComponent {
 		return false;
 	}
 
+	/*
+	 * determine if an entity is a district of Germany.
+	 *
+	 * @param foundEntity
+	 * @return 
+	 */
+	public boolean isDistrictOfGermany (FoundEntity foundEntity) {
+		String wikidataResource = foundEntity.getWikidataResource();
+		String wikidataAskQuery = ""
+			+ "PREFIX wdt: <http://www.wikidata.org/prop/direct/> "
+			+ "PREFIX wd: <http://www.wikidata.org/entity/> "
+			+ "ASK "
+			+ "WHERE { "
+			+ "  VALUES ?location {  "
+			+ "    <"+wikidataResource+"> "
+			+ "  } "
+			+ "  VALUES ?districtConcept { "
+			+ "    wd:Q106658 " // denotes a district of Germany as opposed to more generic definition
+			+ "    wd:Q42744322 " // uran municipality of Germany
+			+ "  } "
+			+ "  ?location wdt:P31/wdt:P279* ?districtConcept .  "
+			+ "} ";
+
+		String wikidataEndpoint = "https://query.wikidata.org/sparql";
+		QueryExecution qexec = QueryExecutionFactory.sparqlService(wikidataEndpoint, wikidataAskQuery);
+
+		try {
+			boolean result = qexec.execAsk();
+			return result;
+		} catch (Exception e) {
+			logger.warn("could not query wikidata endpoint {}", e.getMessage());
+		} finally {
+			qexec.close();
+		}
+		return false;
+	}
+
+	/**
+	 * create and execute an INSERT query to add an identified location entity to the triplestore.
+	 *
+	 * @param district
+	 * @param myQanaryMessage
+	 * @param myQanaryUtils
+	 * @param targetRelation
+	 * @throws SparqlQueryFailed
+	 */
 	public void addDistrictToTriplestore(
 			FoundEntity district,
 			QanaryMessage myQanaryMessage,
@@ -304,40 +441,36 @@ public class LocationToGermanDistrict extends QanaryComponent {
 				+ "GRAPH <"+myQanaryMessage.getInGraph().toString()+"> { " //
 				+ "  ?a a qa:AnnotationOfInstanceLocation . " //
 				+ "  ?a oa:hasBody [ " //
-				+ "    dbo:type ?type; "  // 
-				+ "    rdfs:label ?label; " // 
-				+ "	   qa:hasID ?qid " // 
+				+ "    dbo:type ?type; "  // district or federal state of Germany
+				+ "    rdfs:label ?label; " // language specific label of the location
+				+ "	   qa:hasID ?qid " // unique district/regional key
 				+ "  ] . " //
-				+ "  ?a qa:hasConfidence ?score . " // 
-				+ "  ?a oa:hasTarget [ " //
-				+ "    rdfs:label ?target ; " // 
-				+ "    qa:targetRelation ?targetRelation " // 
+				+ "  ?a qa:hasConfidence ?score . " // confidence 
+				+ "  ?a oa:hasTarget [ " // part of the question identified to be a location
+				+ "    rdfs:label ?target ; " // specific substring 
+				+ "    qa:targetRelation ?targetRelation " // located_in or containing
 				+ "  ] . " //
-				+ "  ?a oa:annotatedBy ?component  . " //
-				+ "  ?a oa:annotatedAt ?time . " //
+				+ "  ?a oa:annotatedBy ?component  . " // 
+				+ "  ?a oa:annotatedAt ?time . " // 
 				+ "} " //
 				+ "} " //
 				+ "WHERE { " // 
 				+ "  BIND (IRI(str(RAND())) AS ?a) . " //
-				+ "  BIND (dbr:Districts_of_Germany AS ?type) . " //
-				+ "  BIND (\""+district.getSurfaceForm()+"\"^^xsd:string AS ?label) . " // TODO: type
-				+ "  BIND (\""+district.getDistrictKey()+"\"^^xsd:string: AS ?qid) . " // 
+				+ "  BIND ("+district.getLocationType()+" AS ?type) . " //
+				+ "  BIND (\""+district.getSurfaceForm()+"\"^^xsd:string AS ?label) . " // 
+				+ "  BIND (\""+district.getKey()+"\"^^xsd:string: AS ?qid) . " // 
 				+ "  BIND (\""+district.getScore()+"\"^^xsd:string AS ?score) . " //
 				+ "  BIND (\""+district.getTargetString()+"\"^^xsd:string AS ?target) ." //
 				+ "  BIND (\""+targetRelation+"\"^^xsd:string AS ?targetRelation) . " // 
-				//TODO: this might be misleading as target is the original surface form and not
-				// the current district as it would be needed to connect numbers to specific places
 				+ "  BIND (<urn:qanary:"+this.applicationName+"> AS ?component) . " //
 				+ "  BIND (now() AS ?time) . " //
 				+ "}";
 
 		myQanaryUtils.updateTripleStore(sparqlUpdateQuery, myQanaryMessage.getEndpoint());
-
 	}
 
 	public void removeEntityFromTriplestore(FoundEntity foundEntity) {
-		// TODO: update triplestore
-
+		// remove entities that are not locations
+		// TODO: remove entities from triplestore
 	}
-	
 }
