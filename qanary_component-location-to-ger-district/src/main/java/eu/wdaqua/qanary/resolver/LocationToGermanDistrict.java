@@ -2,6 +2,7 @@ package eu.wdaqua.qanary.resolver;
 
 import java.util.List;
 import java.util.LinkedList;
+import java.util.Arrays;
 
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
@@ -36,6 +37,7 @@ public class LocationToGermanDistrict extends QanaryComponent {
 
 	// use German as default languag as this component is supposed to find German districts
 	private final String defaultLanguage = "de";
+	private final List<String> supportedLanguages = Arrays.asList("en", "de");
 
 	public LocationToGermanDistrict(
 			@Value("${spring.application.name}") final String applicationName) {
@@ -72,15 +74,23 @@ public class LocationToGermanDistrict extends QanaryComponent {
 				+ "}";
 
 		ResultSet langResultset = myQanaryUtils.selectFromTripleStore(selectLanguage);
-		String questionLanguage;
+		String questionLanguage = null;
 		try {
 			QuerySolution tupel = langResultset.next();
 			String language = tupel.get("language").toString();
-			logger.info("Annotated language: {}", language);
-			questionLanguage = language;
+			if (this.supportedLanguages.contains(language)) {
+				questionLanguage = language;
+				logger.info("Annotated language {} is supported!", language);
+			} else {
+				logger.info("Annotated language {} is not supported!", language);
+			}
 		} catch (Exception e) {
-			logger.warn("No language annotated, using default: {} \n{}", defaultLanguage, e.getMessage());
-			questionLanguage = defaultLanguage;
+			logger.warn("No language was annotated! \n{}", e.getMessage());
+		}
+
+		// don't continue processing if the language is not suppoted or cannot be found
+		if (questionLanguage == null) {
+			return myQanaryMessage;
 		}
 
 		// get the named entities annotated for this question
