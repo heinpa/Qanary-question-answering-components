@@ -1,6 +1,7 @@
 package eu.wdaqua.opentapiocaNED;
 
 import java.util.List;
+import java.util.Arrays;
 
 import com.google.gson.JsonArray;
 
@@ -9,6 +10,9 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Value;
+
+import org.apache.jena.query.QuerySolution;
+import org.apache.jena.query.ResultSet;
 
 import io.swagger.v3.oas.annotations.Operation;
 
@@ -38,6 +42,8 @@ public class OpenTapiocaNED extends QanaryComponent {
 	private final OpenTapiocaServiceFetcher openTapiocaServiceFetcher;
 
 	private final String applicationName;
+
+	private final List<String> supportedLanguages = Arrays.asList("en");
 
 	public OpenTapiocaNED (
 			@Value("${spring.application.name}") final String applicationName,
@@ -76,11 +82,42 @@ public class OpenTapiocaNED extends QanaryComponent {
 		logger.info("processing question \"{}\" with OpenTapioca at {}.", //
 				questionText, openTapiocaConfiguration.getEndpoint());
 
+		// get the question language for this question
+	    String selectLanguage = "" //
+	     			   + "PREFIX oa: <http://www.w3.org/ns/openannotation/core/> " //
+	     			   + "PREFIX qa: <http://www.wdaqua.eu/qa#> " //
+	     			   + "SELECT * " //
+	     			   + "FROM <" + myQanaryMessage.getInGraph().toString() + "> " // the currently used graph
+	     			   + "WHERE { " //
+	     			   + "        ?annotation     a qa:AnnotationOfQuestionLanguage ." // as annotated by LD Shuyo
+	     			   + "    ?annotation     oa:hasBody ?language ." //
+	     			   + "}";
+
+	    ResultSet langResultset = myQanaryUtils.selectFromTripleStore(selectLanguage);
+	    String questionLanguage = null;
+	    try {
+	     	   QuerySolution tupel = langResultset.next();
+	     	   String language = tupel.get("language").toString();
+	     	   if (this.supportedLanguages.contains(language)) {
+	     			   questionLanguage = language;
+	     			   logger.info("Annotated language {} is supported!", language);
+	     	   } else {
+	     			   logger.info("Annotated language {} is not supported!", language);
+	     	   }
+	    } catch (Exception e) {
+	     	   logger.warn("No language was annotated! \n{}", e.getMessage());
+	    }
+
+	    // don't continue processing if the language is not suppoted or cannot be found
+	    if (questionLanguage == null) {
+	     	   return myQanaryMessage;
+	    }
+
+
 		// STEP 2: Compute new Information about the question.
 		// 
 		// Use an external endpoint to an OpenTapioca implementation
 		// to identify Wikidata entities in the question.
-
 		JsonArray resources;
 		resources = openTapiocaServiceFetcher.getJsonFromService(//
 				questionText, openTapiocaConfiguration.getEndpoint());
