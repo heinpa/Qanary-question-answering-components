@@ -446,14 +446,16 @@ public class LocationToGermanDistrict extends QanaryComponent {
 				+ "PREFIX dbr: <https://dbpedia.org/resource/> " //
   				+ "PREFIX dbo: <http://dbpedia.org/ontology/> " //
 				+ "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> " //
-				+ "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> \n" //
+				+ "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> " //
+				+ "PREFIX owl: <http://www.w3.org/2002/07/owl#> " //
 				+ "INSERT { " //
 				+ "GRAPH <"+myQanaryMessage.getInGraph().toString()+"> { " //
 				+ "  ?a a qa:AnnotationOfInstanceLocation . " //
 				+ "  ?a oa:hasBody [ " //
 				+ "    dbo:type ?type; "  // district or federal state of Germany
 				+ "    rdfs:label ?label; " // language specific label of the location
-				+ "	   qa:hasID ?qid " // unique district/regional key
+				+ "	   qa:hasID ?qid; " // unique district/regional key
+				+ "    owl:sameAs ?uri " // wikidata URI
 				+ "  ] . " //
 				+ "  ?a qa:hasConfidence ?score . " // confidence 
 				+ "  ?a oa:hasTarget [ " // part of the question identified to be a location
@@ -472,6 +474,7 @@ public class LocationToGermanDistrict extends QanaryComponent {
 				+ "  BIND (\""+district.getScore()+"\"^^xsd:string AS ?score) . " //
 				+ "  BIND (\""+district.getTargetString()+"\"^^xsd:string AS ?target) ." //
 				+ "  BIND (\""+targetRelation+"\"^^xsd:string AS ?targetRelation) . " // 
+				+ "  BIND (<"+district.getWikidataResource()+"> AS ?uri) . " //
 				+ "  BIND (<urn:qanary:"+this.applicationName+"> AS ?component) . " //
 				+ "  BIND (now() AS ?time) . " //
 				+ "}";
