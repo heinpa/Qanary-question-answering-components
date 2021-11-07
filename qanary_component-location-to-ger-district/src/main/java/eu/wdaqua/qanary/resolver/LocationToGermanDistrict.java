@@ -37,7 +37,7 @@ public class LocationToGermanDistrict extends QanaryComponent {
 
 	// use German as default languag as this component is supposed to find German districts
 	private final String defaultLanguage = "de";
-	private final List<String> supportedLanguages = Arrays.asList("en", "de");
+	private final List<String> supportedLanguages = Arrays.asList("en");
 
 	public LocationToGermanDistrict(
 			@Value("${spring.application.name}") final String applicationName) {
