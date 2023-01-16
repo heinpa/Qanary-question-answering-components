@@ -60,12 +60,14 @@ public class QAnswerQueryBuilderAndExecutor extends QanaryComponent {
     private RestTemplate myRestTemplate;
     private String langDefault;
     private String knowledgeBaseDefault;
+    private String accessToken; 
 
     public QAnswerQueryBuilderAndExecutor( //
                                            float threshold, //
                                            @Qualifier("langDefault") String langDefault, //
                                            @Qualifier("knowledgeBaseDefault") String knowledgeBaseDefault, //
                                            @Qualifier("endpointUrl") URI qanswerEndpoint, //
+                                           @Qualifier("accessToken") String accessToken, //
                                            @Value("${spring.application.name}") final String applicationName, //
                                            RestTemplateWithCaching restTemplate //
     ) throws URISyntaxException, MalformedURLException {
@@ -80,11 +82,14 @@ public class QAnswerQueryBuilderAndExecutor extends QanaryComponent {
                         + langDefault.length() + ")";
         assert !(knowledgeBaseDefault == null || knowledgeBaseDefault.trim().isEmpty()) : //
                 "knowledgeBaseDefault cannot be null or empty: " + knowledgeBaseDefault;
+        assert !(accessToken == null || accessToken.trim().isEmpty()) : //
+                "accessToken cannot be null or empty"; 
 
         this.threshold = threshold;
         this.qanswerEndpoint = qanswerEndpoint;
         this.langDefault = langDefault;
         this.knowledgeBaseDefault = knowledgeBaseDefault;
+        this.accessToken = accessToken;
         this.myRestTemplate = restTemplate;
         this.applicationName = applicationName;
 
@@ -157,6 +162,7 @@ public class QAnswerQueryBuilderAndExecutor extends QanaryComponent {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         headers.set("User-Agent", "Qanary/" + this.getClass().getName());
+        headers.set("Authorization", this.accessToken);
 
         MultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
         parameters.add("question", questionString);

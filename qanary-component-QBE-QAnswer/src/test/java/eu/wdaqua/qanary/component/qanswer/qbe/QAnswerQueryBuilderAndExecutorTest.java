@@ -44,6 +44,8 @@ class QAnswerQueryBuilderAndExecutorTest {
 
     private URI realEndpoint;
 
+    private String accessToken;
+
     private URI resource;
     private URI bool;
     private URI decimal;
@@ -51,6 +53,7 @@ class QAnswerQueryBuilderAndExecutorTest {
     @BeforeEach
     public void init() throws URISyntaxException {
         realEndpoint = new URI(env.getProperty("qanswer.endpoint.url"));
+        accessToken = env.getProperty("qanswer.access.token");
 
         bool = new URI("http://www.w3.org/2001/XMLSchema#boolean");
         decimal = new URI("http://www.w3.org/2001/XMLSchema#decimal");
@@ -67,7 +70,7 @@ class QAnswerQueryBuilderAndExecutorTest {
     void testTransformationOfNamedEntites() throws URISyntaxException, MalformedURLException {
         float threshold = 0.5f;
         QAnswerQueryBuilderAndExecutor myApp = new QAnswerQueryBuilderAndExecutor(threshold, "en", "dbpedia",
-                new URI("urn:no:endpoint"), applicationName, restTemplate);
+                new URI("urn:no:endpoint"), this.accessToken, applicationName, restTemplate);
         List<TestData> myTestData = new LinkedList<>();
 
         List<NamedEntity> entities0 = new LinkedList<>();
@@ -90,7 +93,7 @@ class QAnswerQueryBuilderAndExecutorTest {
     void testThresholdBehavior() throws URISyntaxException, MalformedURLException {
         float threshold = 0.4f;
         QAnswerQueryBuilderAndExecutor myApp = new QAnswerQueryBuilderAndExecutor(threshold, "en", "wikidata",
-                new URI("urn:no:endpoint"), applicationName, restTemplate);
+                new URI("urn:no:endpoint"), this.accessToken, applicationName, restTemplate);
         List<TestData> myTestData = new LinkedList<>();
 
         List<NamedEntity> entities0 = new LinkedList<>();
@@ -147,7 +150,7 @@ class QAnswerQueryBuilderAndExecutorTest {
         String kb = "wikidata";
 
         QAnswerQueryBuilderAndExecutor myApp = new QAnswerQueryBuilderAndExecutor(threshold, lang, kb,
-                this.realEndpoint, applicationName, restTemplate);
+                this.realEndpoint, this.accessToken, applicationName, restTemplate);
         String question = "What is the capital of Germany?";
         QAnswerResult result0 = testWebService(myApp, question, lang, kb);
 
@@ -196,7 +199,7 @@ class QAnswerQueryBuilderAndExecutorTest {
         int max = 1000;
 
         QAnswerQueryBuilderAndExecutor myApp = new QAnswerQueryBuilderAndExecutor(threshold, lang, kb,
-                this.realEndpoint, applicationName, restTemplate);
+                this.realEndpoint, this.accessToken, applicationName, restTemplate);
         String question = "Person born in France.";
         QAnswerResult result0 = testWebService(myApp, question, lang, kb);
         assertTrue(result0.getValues().size() >= min, "problem: not " + result0.getValues().size() + " >= " + min);
@@ -252,7 +255,7 @@ class QAnswerQueryBuilderAndExecutorTest {
         String kb = "wikidata";
 
         QAnswerQueryBuilderAndExecutor myApp = new QAnswerQueryBuilderAndExecutor(threshold, lang, kb,
-                this.realEndpoint, applicationName, restTemplate);
+                this.realEndpoint, this.accessToken, applicationName, restTemplate);
         String question = "Is Berlin the capital of Germany";
         QAnswerResult result0 = testWebService(myApp, question, lang, kb);
 
@@ -301,7 +304,7 @@ class QAnswerQueryBuilderAndExecutorTest {
         String kb = "wikidata";
 
         QAnswerQueryBuilderAndExecutor myApp = new QAnswerQueryBuilderAndExecutor(threshold, lang, kb,
-                this.realEndpoint, applicationName, restTemplate);
+                this.realEndpoint, this.accessToken, applicationName, restTemplate);
         String question = "population of france";
         QAnswerResult result0 = testWebService(myApp, question, lang, kb);
 
@@ -346,7 +349,7 @@ class QAnswerQueryBuilderAndExecutorTest {
         String kb = "wikidata";
 
         QAnswerQueryBuilderAndExecutor myApp = new QAnswerQueryBuilderAndExecutor(threshold, lang, kb,
-                this.realEndpoint, applicationName, restTemplate);
+                this.realEndpoint, this.accessToken, applicationName, restTemplate);
         String question = "what is the nickname of Rome";
         QAnswerResult result0 = testWebService(myApp, question, lang, kb);
 

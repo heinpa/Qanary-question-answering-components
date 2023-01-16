@@ -36,6 +36,11 @@ public class Application {
         return langDefault;
     }
 
+    @Bean(name = "accessToken")
+    String accessToken(@Value("${qanswer.access.token}") String accessToken) {
+        return accessToken;
+    }
+
     @Bean(name = "knowledgeBaseDefault")
     String knowledgeBaseDefault(
             @Value("${qanswer.endpoint.knowledgebase.default:wikidata}") String knowledgeBaseDefault) {
