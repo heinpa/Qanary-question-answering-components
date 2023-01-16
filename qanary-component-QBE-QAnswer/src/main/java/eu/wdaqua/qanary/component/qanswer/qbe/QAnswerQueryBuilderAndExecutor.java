@@ -21,11 +21,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import eu.wdaqua.qanary.commons.QanaryExceptionNoOrMultipleQuestions;
 import eu.wdaqua.qanary.commons.QanaryMessage;
@@ -157,14 +159,36 @@ public class QAnswerQueryBuilderAndExecutor extends QanaryComponent {
         headers.set("User-Agent", "Qanary/" + this.getClass().getName());
 
         MultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
-        parameters.add("query", questionString);
+        parameters.add("question", questionString);
         parameters.add("lang", lang);
         parameters.add("kb", knowledgeBaseId);
+
+
+
+        String urlTemplate = UriComponentsBuilder.fromUri(uri)
+            .queryParam("question", "{question}")
+            .queryParam("lang", "{lang}")
+            .queryParam("kb", "{kb}")
+            .build()
+            .toString();
+
+        logger.info("computed urlTemplate: {}", urlTemplate);
+
+
+
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(parameters, headers);
         logger.warn("request to {} with data {}", uri, request.getBody());
 
-        HttpEntity<JSONObject> response = myRestTemplate.postForEntity(uri, request, JSONObject.class);
+        //HttpEntity<JSONObject> response = myRestTemplate.postForEntity(uri, request, JSONObject.class);
+        //
+        HttpEntity<JSONObject> response = myRestTemplate.exchange(
+                urlTemplate,
+                HttpMethod.GET,
+                request,
+                JSONObject.class,
+                parameters
+                );
         logger.info("QAnswer JSON result for question '{}': {}", questionString,
                 response.getBody().getAsString("questions"));
 
