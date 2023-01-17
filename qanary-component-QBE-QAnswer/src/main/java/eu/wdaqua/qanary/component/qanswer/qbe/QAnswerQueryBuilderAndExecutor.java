@@ -186,8 +186,6 @@ public class QAnswerQueryBuilderAndExecutor extends QanaryComponent {
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(parameters, headers);
         logger.warn("request to {} with data {}", uri, request.getBody());
 
-        //HttpEntity<JSONObject> response = myRestTemplate.postForEntity(uri, request, JSONObject.class);
-        //
         HttpEntity<JSONObject> response = myRestTemplate.exchange(
                 urlTemplate,
                 HttpMethod.GET,
