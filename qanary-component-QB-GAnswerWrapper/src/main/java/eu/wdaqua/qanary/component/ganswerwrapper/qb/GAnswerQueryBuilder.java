@@ -159,7 +159,7 @@ import java.util.List;
         long requestBefore = myCacheOfResponses.getNumberOfExecutedRequests();
 
         logger.debug("URL: {}", gAnswerRequest.getGAnswerQuestionUrlAsString());
-        HttpEntity<JSONObject> response = myRestTemplate.getForEntity(gAnswerRequest.getGAnswerQuestionUrlAsString(), JSONObject.class);
+        HttpEntity<JSONObject> response = myRestTemplate.getForEntity(new URI(gAnswerRequest.getGAnswerQuestionUrlAsString()), JSONObject.class);
 
         Assert.notNull(response);
         Assert.notNull(response.getBody());

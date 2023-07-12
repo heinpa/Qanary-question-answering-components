@@ -116,7 +116,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>eu.wdaqua.qanary.g_answer_wrapper.Application</mainClass>
+                    <mainClass>eu.wdaqua.qanary.component.ganswerwrapper.qb.Application</mainClass>
                 </configuration>
                 <executions>
                     <execution>
