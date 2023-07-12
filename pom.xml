@@ -10,10 +10,21 @@
 
     <profiles>
         <profile>
-            <id>all</id>
+            <id>thesis</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
+            <modules>
+                <module>qanary-component-QB-GAnswerWrapper</module> 
+                <!--module>qanary-component-QBE-QAnswer</module--> 
+                <module>qanary-component-QB-QAnswer</module>
+                <module>qanary-component-QB-PlatypusWrapper</module>
+                <module>qanary-component-QB-Sina</module>
+                <!--TODO: add DeepPavlov Wrapper -->
+            </modules>
+        </profile>
+        <profile>
+            <id>all</id>
             <modules>
                 <!-- <module>qanary_component-template</module> -->
                 <module>qanary-component-LD-Shuyo</module>
@@ -67,28 +78,6 @@
                 <module>qanary-component-QB-GAnswerWrapper</module>
                 <module>qanary-component-QB-RuBQWrapper</module>
                 <module>qanary-component-QB-TeBaQaWrapper</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>needfix</id>
-            <modules>
-                <module>qanary-component-NED-DBpediaSpotlight</module>
-                <module>qanary-component-QB-SimpleRealNameOfSuperHero</module>
-                <!--<module>batmanquestion.annotator</module>-->
-            </modules>
-        </profile>
-        <profile>
-            <id>tutorial</id>
-            <modules>
-                <module>qanary-component-NED-Ambiverse</module>
-                <module>qanary-component-RD-DiambiguationProperty-OKBQA</module>
-                <module>qanary-component-QBE-SimpleQueryBuilderAndExecutor</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>tinytutorial</id>
-            <modules>
-                <module>qanary-component-QB-PlatypusWrapper</module>
             </modules>
         </profile>
     </profiles>
