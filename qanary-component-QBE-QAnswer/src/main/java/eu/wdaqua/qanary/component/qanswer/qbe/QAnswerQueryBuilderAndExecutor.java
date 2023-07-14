@@ -381,14 +381,14 @@ public class QAnswerQueryBuilderAndExecutor extends QanaryComponent {
                 // used SPARQL query
                 + "  ?annotationSPARQL a 	qa:AnnotationOfAnswerSPARQL ; \n" //
                 + " 		oa:hasTarget    ?question ; \n" //
-                + " 		oa:hasBody      ?sparql ; \n" //
+                + " 		oa:hasBody      ?sparqlQueryString ; \n" //
                 + " 		oa:annotatedBy  ?service ; \n" //
                 + " 		oa:annotatedAt  ?time ; \n" //
                 + " 		qa:score        ?score ; \n" //
                 + " 		qa:overKnowledgeGraph ?knowledgeGraph . \n" //
                 //
-                + "  ?sparql a              qa:SparqlQuery ; \n" //
-                + "         rdf:value       ?sparqlQueryString . \n" //
+//                + "  ?sparql a              qa:SparqlQuery ; \n" //
+//                + "         rdf:value       ?sparqlQueryString . \n" //
                 // improved question
                 + "  ?annotationImprovedQuestion  a 	qa:AnnotationOfImprovedQuestion ; \n" //
                 + " 		oa:hasTarget    ?question ; \n" //
@@ -432,7 +432,7 @@ public class QAnswerQueryBuilderAndExecutor extends QanaryComponent {
                 + "}\n" // end: insert
                 + "WHERE { \n" //
                 + "  BIND (IRI(str(RAND())) AS ?annotationSPARQL) . \n" //
-                + "  BIND (IRI(str(RAND())) AS ?sparql) . \n" //
+                //+ "  BIND (IRI(str(RAND())) AS ?sparql) . \n" //
                 //
                 + "  BIND (IRI(str(RAND())) AS ?annotationOfAnswerType) . \n" //
                 + "  BIND (IRI(str(RAND())) AS ?answerType) . \n" //

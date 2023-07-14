@@ -16,7 +16,7 @@
 		<java.version>11</java.version>
 		<qanary.version>[3.7.1,4.0.0)</qanary.version>
 		<spring-boot-admin.version>2.7.10</spring-boot-admin.version>
-		<docker.image.prefix>qanary</docker.image.prefix>
+		<docker.image.prefix>heipa</docker.image.prefix>
 		<docker.image.name>qanary-component-qbe-qanswer</docker.image.name>
 		<dockerfile-maven-version>1.4.13</dockerfile-maven-version>
 		<springdoc.version>1.6.15</springdoc.version>
@@ -141,6 +141,16 @@
 						</goals>
 						<configuration>
 							<tag>latest</tag>
+						</configuration>
+					</execution>
+					<execution>
+						<id>default-3</id>
+						<goals>
+							<goal>tag</goal>
+							<goal>push</goal>
+						</goals>
+						<configuration>
+							<tag>thesis</tag>
 						</configuration>
 					</execution>
 				</executions>
