@@ -11,7 +11,10 @@ import eu.wdaqua.qanary.component.ganswerwrapper.qb.messages.GAnswerRequest;
 import eu.wdaqua.qanary.component.ganswerwrapper.qb.messages.GAnswerResult;
 import eu.wdaqua.qanary.exceptions.SparqlQueryFailed;
 import net.minidev.json.JSONObject;
+
+import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.QuerySolutionMap;
+import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.shiro.util.Assert;
 import org.slf4j.Logger;
@@ -25,7 +28,9 @@ import org.springframework.web.client.RestTemplate;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 /**
@@ -48,6 +53,8 @@ import java.util.List;
     private final String applicationName;
     private final CacheOfRestTemplateResponse myCacheOfResponses;
     private QanaryUtils myQanaryUtils;
+
+    private String FILENAME_SELECT_ANNOTATION = "/queries/select_annotation.rq";
 
     public GAnswerQueryBuilder(//
                                float threshold, //
@@ -115,19 +122,31 @@ import java.util.List;
         // TODO retrieve language from Qanary triplestore via commons method
         String lang = null;
 
+        // STEP 1: get the required data from the Qanary triplestore (the global process
+        // memory)
+        QanaryQuestion<String> myQanaryQuestion = this.getQanaryQuestion(myQanaryMessage);
+        String questionString;
+
+        // added for translation support
+        // TODO: look for AnnotationOfQuestionTranslation with @lang
+        Map<String, String> questionTranslation = getQuestionTranslation(myQanaryQuestion, myQanaryUtils);
+        if (questionTranslation != null) {
+            questionString = questionTranslation.get("string");
+            lang = questionTranslation.get("lang");
+            logger.info("Translation found in triplestore: {}@{}", questionString, lang);
+        } else {
+            questionString = myQanaryQuestion.getTextualRepresentation();
+            logger.info("Using original question string: {}", questionString);
+        }
+
         if (lang == null) {
             lang = langDefault;
         }
 
-        if (isLangSuppoerted(lang) == false) {
+        if (isLangSupported(lang) == false) {
             logger.warn("lang ({}) is not supported", lang);
             return myQanaryMessage;
         }
-
-        // STEP 1: get the required data from the Qanary triplestore (the global process
-        // memory)
-        QanaryQuestion<String> myQanaryQuestion = this.getQanaryQuestion(myQanaryMessage);
-        String questionString = myQanaryQuestion.getTextualRepresentation();
 
         // STEP 2: enriching of query and fetching data from the gAnswer API
         GAnswerResult result = requestGAnswerWebService(endpoint, questionString, lang);
@@ -144,13 +163,46 @@ import java.util.List;
         return myQanaryMessage;
     }
 
-    protected boolean isLangSuppoerted(String lang) {
+    private String loadQueryFromFile(String filename, QuerySolutionMap bindings) throws IOException {
+        return QanaryTripleStoreConnector.readFileFromResourcesWithMap(filename, bindings);
+    }
+
+    private Map<String, String> getQuestionTranslation(QanaryQuestion qanaryQuestion, QanaryUtils qanaryUtils) {
+        try {
+            QuerySolutionMap bindingsForSelect = new QuerySolutionMap();
+            bindingsForSelect.add("graph", ResourceFactory.createResource(qanaryQuestion.getOutGraph().toASCIIString()));
+            bindingsForSelect.add("targetQuestion", ResourceFactory.createResource(qanaryQuestion.getUri().toASCIIString()));
+
+            String sparql = this.loadQueryFromFile(FILENAME_SELECT_ANNOTATION, bindingsForSelect);
+            logger.info("SPARQL query: {}", sparql);
+            ResultSet resultSet = qanaryUtils.getQanaryTripleStoreConnector().select(sparql);
+
+            if (!resultSet.hasNext()) {
+                logger.warn("no matching resource could be found");
+            }
+
+            // expecting only one annotated translation
+            QuerySolution result = resultSet.next();
+            String translatedQuestionString = result.get("translation").asLiteral().getString();
+            String translatedQuestionLanguage = result.get("language").asLiteral().getString();
+
+            Map<String, String> questionTranslation = new HashMap<>();
+            questionTranslation.put("string", translatedQuestionString);
+            questionTranslation.put("lang", translatedQuestionLanguage);
+
+            return questionTranslation;
+        } catch (Exception e) {
+            logger.warn("Could not get Question Translation:\n{}", e.getMessage());
+            return null;
+        }
+    }
+
+    protected boolean isLangSupported(String lang) {
         for (int i = 0; i < supportedLang.size(); i++) {
             if (supportedLang.get(i).equals(lang)) {
                 return true;
             }
         }
-
         return false;
     }
 

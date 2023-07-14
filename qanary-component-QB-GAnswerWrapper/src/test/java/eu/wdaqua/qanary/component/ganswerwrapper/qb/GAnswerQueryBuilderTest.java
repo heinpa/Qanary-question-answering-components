@@ -62,13 +62,13 @@ class GAnswerQueryBuilderTest {
 
         GAnswerQueryBuilder gAnswerQueryBuilder = new GAnswerQueryBuilder(threshold, langDefault, supportedLang, this.endpoint, this.applicationName, this.restTemplate, this.myCacheOfResponse);
 
-        assertTrue(gAnswerQueryBuilder.isLangSuppoerted("en"));
-        assertTrue(gAnswerQueryBuilder.isLangSuppoerted("fr"));
-        assertTrue(gAnswerQueryBuilder.isLangSuppoerted("es"));
+        assertTrue(gAnswerQueryBuilder.isLangSupported("en"));
+        assertTrue(gAnswerQueryBuilder.isLangSupported("fr"));
+        assertTrue(gAnswerQueryBuilder.isLangSupported("es"));
 
-        assertFalse(gAnswerQueryBuilder.isLangSuppoerted("ne"));
-        assertFalse(gAnswerQueryBuilder.isLangSuppoerted("de"));
-        assertFalse(gAnswerQueryBuilder.isLangSuppoerted("se"));
+        assertFalse(gAnswerQueryBuilder.isLangSupported("ne"));
+        assertFalse(gAnswerQueryBuilder.isLangSupported("de"));
+        assertFalse(gAnswerQueryBuilder.isLangSupported("se"));
     }
 
     /**
