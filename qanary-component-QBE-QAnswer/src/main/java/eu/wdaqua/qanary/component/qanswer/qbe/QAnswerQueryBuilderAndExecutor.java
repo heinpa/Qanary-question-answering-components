@@ -139,7 +139,14 @@ public class QAnswerQueryBuilderAndExecutor extends QanaryComponent {
         // STEP 1: get the required data from the Qanary triplestore (the global process
         // memory)
         QanaryQuestion<String> myQanaryQuestion = this.getQanaryQuestion(myQanaryMessage);
-        String questionString = myQanaryQuestion.getTextualRepresentation();
+        String questionString = "";
+        try {
+            questionString = myQanaryQuestion.getTextualRepresentation(lang);
+            logger.info("Using spedific textual representation for language {}: {}", lang, questionString);
+        } catch (Exception e) {
+            logger.warn("Could not retrieve specific textual representation for language {}:\n{}", lang, e.getMessage());
+            questionString = myQanaryQuestion.getTextualRepresentation();
+        }
         List<NamedEntity> retrievedNamedEntities = getNamedEntitiesOfQuestion(myQanaryQuestion,
                 myQanaryQuestion.getInGraph());
 
@@ -262,10 +269,9 @@ public class QAnswerQueryBuilderAndExecutor extends QanaryComponent {
                     score, threshold, ignored);
         }
 
-        logger.info("Result list ({} items) of getNamedEntitiesOfQuestion for question \"{}\".", namedEntities.size(),
-                myQanaryQuestion.getTextualRepresentation());
+        logger.info("Result list ({} items) of getNamedEntitiesOfQuestion.", namedEntities.size());
         if (namedEntities.size() == 0) {
-            logger.warn("no named entities exist for '{}'", myQanaryQuestion.getTextualRepresentation());
+            logger.warn("no named entities exist!");
         } else {
             for (NamedEntity namedEntity : namedEntities) {
                 logger.info("found namedEntity: {}", namedEntity.toString());
