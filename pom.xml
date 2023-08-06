@@ -16,11 +16,9 @@
             </activation>
             <modules>
                 <module>qanary-component-QB-GAnswerWrapper</module> 
-                <!--module>qanary-component-QBE-QAnswer</module--> 
-                <module>qanary-component-QBE-QAnswer</module>
-                <module>qanary-component-QB-PlatypusWrapper</module>
-                <module>qanary-component-QB-Sina</module>
-                <!--TODO: add DeepPavlov Wrapper -->
+                <module>qanary-component-QB-QAnswer</module>
+                <module>qanary-component-QB-DeepPavlovWrapper</module>
+                <!--module>qanary-component-QB-PlatypusWrapper</module-->
                 <module>qanary-component-QE-SparqlExecuter</module>
             </modules>
         </profile>
