@@ -139,27 +139,31 @@ public class QAnswerQueryBuilderAndSparqlResultFetcherController {
 				knowledgeBaseId, user);
 	}
 
-	@PostMapping(value = QAnswerQueryBuilderAndSparqlResultFetcherController.DEMO, produces = "application/json")
-	@ResponseBody
-	@Operation(summary = "Send a request to the QAnswer API and create the component's SPARQL query", //
-			operationId = "requestQAnswerWebService", //
-			description = "Only the question parameter is required. " //
-					+ "Examples: \"What is the capital of Germany?\",  " //
-					+ "\"What is the capital of http://www.wikidata.org/entity/Q183?\", " //
-					+ "\"Person born in France\", " //
-					+ "\"Person born in http://www.wikidata.org/entity/Q142?\", " //
-					+ "\"Is Berlin the capital of Germany\" " //
-	)
-	public QAnswerQanaryWrapperResult requestDemoResultWebService(@RequestBody QAnswerRequest request)
-			throws URISyntaxException, MalformedURLException, QanaryExceptionNoOrMultipleQuestions, SparqlQueryFailed {
-		logger.info("requestDemoResultWebService: {} ", request);
-		request.replaceNullValuesWithDefaultValues(this.getEndpoint(), this.getLangFallback(),
-				this.getKnowledgeBaseDefault(), this.getUserDefault());
-		QAnswerResult result = this.requestQAnswerWebService(request);
-		String sparqQuery = myQAnswerQueryBuilderAndExecutor.getSparqlInsertQuery(endpoint, result);
-		logger.info("received sparqQuery: {}", sparqQuery);
-		return new QAnswerQanaryWrapperResult(result, sparqQuery);
-	}
+// TODO: change implementation or remove feature!
+//		this does not work with the current implementation of getSparqlInsertQuery,
+//		because it relies on an instance of QanaryQuestion, 
+//		which is not created outside of a pipeline context!
+//	@PostMapping(value = QAnswerQueryBuilderAndSparqlResultFetcherController.DEMO, produces = "application/json")
+//	@ResponseBody
+//	@Operation(summary = "Send a request to the QAnswer API and create the component's SPARQL query", //
+//			operationId = "requestQAnswerWebService", //
+//			description = "Only the question parameter is required. " //
+//					+ "Examples: \"What is the capital of Germany?\",  " //
+//					+ "\"What is the capital of http://www.wikidata.org/entity/Q183?\", " //
+//					+ "\"Person born in France\", " //
+//					+ "\"Person born in http://www.wikidata.org/entity/Q142?\", " //
+//					+ "\"Is Berlin the capital of Germany\" " //
+//	)
+//	public QAnswerQanaryWrapperResult requestDemoResultWebService(@RequestBody QAnswerRequest request)
+//			throws URISyntaxException, MalformedURLException, QanaryExceptionNoOrMultipleQuestions, SparqlQueryFailed {
+//		logger.info("requestDemoResultWebService: {} ", request);
+//		request.replaceNullValuesWithDefaultValues(this.getEndpoint(), this.getLangFallback(),
+//				this.getKnowledgeBaseDefault(), this.getUserDefault());
+//		QAnswerResult result = this.requestQAnswerWebService(request);
+//		String sparqQuery = myQAnswerQueryBuilderAndExecutor.getSparqlInsertQuery(endpoint, result);
+//		logger.info("received sparqQuery: {}", sparqQuery);
+//		return new QAnswerQanaryWrapperResult(result, sparqQuery);
+//	}
 	
 	
 

@@ -2,15 +2,12 @@ package eu.wdaqua.qanary.component.qanswer.qb.messages;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import io.swagger.v3.oas.annotations.Hidden;
@@ -31,15 +28,16 @@ public class QAnswerResult {
     private String user;
     private String language;
     private String question;
-    private List<JsonObject> values;
+    private String sparql;
+    private List<String> values;
+    private double confidence;
 
     public QAnswerResult(JSONObject json, String question, URI endpoint, String language, String knowledgebaseId, String user)
             throws URISyntaxException {
-        jsonParser = new JsonParser();
 
         logger.debug("result: {}", json.toJSONString());
 
-        JsonArray parsedJsonArray = jsonParser.parse(json.toJSONString()).getAsJsonObject().getAsJsonArray("queries")
+        JsonArray parsedJsonArray = JsonParser.parseString(json.toJSONString()).getAsJsonObject().getAsJsonArray("queries")
                 .getAsJsonArray();
 
         this.question = question;
@@ -63,17 +61,13 @@ public class QAnswerResult {
      * @throws NoLiteralFieldFoundException
      */
     private void initData(JsonArray answers) throws URISyntaxException {
+        logger.debug("responseQuestion: {}", answers);
 
-        this.values = new LinkedList<JsonObject>();
-
-        for (JsonElement json : answers) {
-            values.add(json.getAsJsonObject());
-        }
-
-        logger.debug("fetched results: {}", this.values.size());
+        logger.debug("0. sparql: {}", answers.get(0).getAsString());
+        this.sparql = answers.get(0).getAsString();
     }
 
-    public List<JsonObject> getValues() {
+    public List<String> getValues() {
         return values;
     }
 
@@ -95,6 +89,14 @@ public class QAnswerResult {
 
     public String getQuestion() {
         return question;
+    }
+
+    public String getSparql() {
+        return sparql;
+    }
+
+    public double getConfidence() {
+        return confidence;
     }
 
 }

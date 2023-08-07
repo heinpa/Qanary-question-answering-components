@@ -3,12 +3,18 @@ package eu.wdaqua.qanary.component.qanswer.qb.messages;
 import java.net.URI;
 
 import javax.validation.constraints.NotBlank;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public class QAnswerRequest {
+    private static final Logger logger = LoggerFactory.getLogger(QAnswerRequest.class);
     @Schema(description = "Endpoint URL of QAnswer API (default is already available)", example = "https://qanswer-core1.univ-st-etienne.fr/api/qa/full", required = true)
     private URI qanswerEndpointUrl;
     @NotBlank
@@ -38,6 +44,20 @@ public class QAnswerRequest {
         this.language = language;
         this.knowledgeBaseId = knowledgeBaseId;
         this.user = user;
+    }
+
+    public String getQAnswerQuestionUrlAsString() {
+        MultiValueMap<String, String> parameters = new LinkedMultiValueMap<String, String>();
+        parameters.add("question", getQuestion());
+        parameters.add("lang", getLanguage());
+        parameters.add("kb", getKnowledgeBaseId());
+        //TODO: regular endpoint might require user param
+
+        UriComponentsBuilder url = UriComponentsBuilder.fromUri(
+                getQanswerEndpointUrl()).queryParams(parameters);
+        logger.info("request to {}", url.toUriString());
+
+        return url.toUriString();
     }
 
     public URI getQanswerEndpointUrl() {

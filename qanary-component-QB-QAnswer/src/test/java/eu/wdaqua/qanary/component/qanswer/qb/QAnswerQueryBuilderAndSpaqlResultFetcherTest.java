@@ -1,8 +1,11 @@
 package eu.wdaqua.qanary.component.qanswer.qb;
 
+import eu.wdaqua.qanary.communications.CacheOfRestTemplateResponse;
 import eu.wdaqua.qanary.communications.RestTemplateWithCaching;
 import eu.wdaqua.qanary.component.qanswer.qb.messages.QAnswerResult;
 import net.minidev.json.parser.ParseException;
+
+import org.apache.jena.sparql.function.library.uuid;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,6 +22,8 @@ import org.springframework.web.client.RestTemplate;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -32,12 +37,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class QAnswerQueryBuilderAndSpaqlResultFetcherTest {
     private static final Logger logger = LoggerFactory.getLogger(QAnswerQueryBuilderAndSpaqlResultFetcherTest.class);
     private final String applicationName = "QAnswerQueryBuilderAndExecutorTest";
+    private final ArrayList<String> supportedLang = new ArrayList<String>(Arrays.asList("en"));
 
     @Autowired
     private Environment env;
 
     @Autowired
     private RestTemplateWithCaching restTemplate;
+
+    @Autowired
+    private CacheOfRestTemplateResponse cacheOfRestTemplateResponse;
 
     // TODO: replace by CachingRestTemplate when release in qanary.commons
     private RestTemplate restClient;
@@ -66,8 +75,10 @@ class QAnswerQueryBuilderAndSpaqlResultFetcherTest {
     @Test
     void testTransformationOfNamedEntites() throws URISyntaxException {
         float threshold = 0.5f;
-        QAnswerQueryBuilderAndSparqlResultFetcher myApp = new QAnswerQueryBuilderAndSparqlResultFetcher(threshold, "en", "dbpedia", "open",
-                new URI("urn:no:endpoint"), applicationName, restTemplate);
+        QAnswerQueryBuilderAndSparqlResultFetcher myApp = 
+            new QAnswerQueryBuilderAndSparqlResultFetcher(threshold, applicationName, 
+                    "en", supportedLang, "dbpedia", "open", new URI("urn:no:endpoint"), 
+                    restTemplate, cacheOfRestTemplateResponse);
         List<TestData> myTestData = new LinkedList<>();
 
         List<NamedEntity> entities0 = new LinkedList<>();
@@ -89,8 +100,10 @@ class QAnswerQueryBuilderAndSpaqlResultFetcherTest {
     @Test
     void testThresholdBehavior() throws URISyntaxException {
         float threshold = 0.4f;
-        QAnswerQueryBuilderAndSparqlResultFetcher myApp = new QAnswerQueryBuilderAndSparqlResultFetcher(threshold, "en", "wikidata", "open",
-                new URI("urn:no:endpoint"), applicationName, restTemplate);
+        QAnswerQueryBuilderAndSparqlResultFetcher myApp = 
+            new QAnswerQueryBuilderAndSparqlResultFetcher(threshold, applicationName, 
+                    "en", supportedLang, "wikidata", "open", new URI("urn:no:endpoint"), 
+                    restTemplate, cacheOfRestTemplateResponse);
         List<TestData> myTestData = new LinkedList<>();
 
         List<NamedEntity> entities0 = new LinkedList<>();
@@ -147,8 +160,10 @@ class QAnswerQueryBuilderAndSpaqlResultFetcherTest {
         String kb = "wikidata";
         String user = "open";
 
-        QAnswerQueryBuilderAndSparqlResultFetcher myApp = new QAnswerQueryBuilderAndSparqlResultFetcher(threshold, lang, kb, user,
-                this.realEndpoint, applicationName, restTemplate);
+        QAnswerQueryBuilderAndSparqlResultFetcher myApp = 
+            new QAnswerQueryBuilderAndSparqlResultFetcher(threshold, applicationName, 
+                    lang, supportedLang, kb, user, this.realEndpoint, 
+                    restTemplate, cacheOfRestTemplateResponse);
         String question = "What is the capital of Germany?";
         QAnswerResult result0 = testWebService(myApp, question, lang, kb, user);
 
@@ -188,8 +203,10 @@ class QAnswerQueryBuilderAndSpaqlResultFetcherTest {
         int max = 60;
 
         // test while using a plain textual question
-        QAnswerQueryBuilderAndSparqlResultFetcher myApp = new QAnswerQueryBuilderAndSparqlResultFetcher(threshold, lang, kb, user,
-                this.realEndpoint, applicationName, restTemplate);
+        QAnswerQueryBuilderAndSparqlResultFetcher myApp = 
+            new QAnswerQueryBuilderAndSparqlResultFetcher(threshold, applicationName, 
+                    lang, supportedLang, kb, user, this.realEndpoint, 
+                    restTemplate, cacheOfRestTemplateResponse);
         String question = "Person born in France.";
         QAnswerResult result0 = testWebService(myApp, question, lang, kb, user);
 
@@ -232,8 +249,10 @@ class QAnswerQueryBuilderAndSpaqlResultFetcherTest {
         String kb = "wikidata";
         String user = "open";
 
-        QAnswerQueryBuilderAndSparqlResultFetcher myApp = new QAnswerQueryBuilderAndSparqlResultFetcher(threshold, lang, kb, user,
-                this.realEndpoint, applicationName, restTemplate);
+        QAnswerQueryBuilderAndSparqlResultFetcher myApp = 
+            new QAnswerQueryBuilderAndSparqlResultFetcher(threshold, applicationName, 
+                    lang, supportedLang, kb, user, this.realEndpoint, 
+                    restTemplate, cacheOfRestTemplateResponse);
         String question = "Is Berlin the capital of Germany";
         QAnswerResult result0 = testWebService(myApp, question, lang, kb, user);
 
@@ -274,8 +293,10 @@ class QAnswerQueryBuilderAndSpaqlResultFetcherTest {
         String kb = "wikidata";
         String user = "open";
 
-        QAnswerQueryBuilderAndSparqlResultFetcher myApp = new QAnswerQueryBuilderAndSparqlResultFetcher(threshold, lang, kb, user,
-                this.realEndpoint, applicationName, restTemplate);
+        QAnswerQueryBuilderAndSparqlResultFetcher myApp = 
+            new QAnswerQueryBuilderAndSparqlResultFetcher(threshold, applicationName, 
+                    lang, supportedLang, kb, user, this.realEndpoint, 
+                    restTemplate, cacheOfRestTemplateResponse);
         String question = "population of france";
         QAnswerResult result0 = testWebService(myApp, question, lang, kb, user);
 
@@ -294,7 +315,7 @@ class QAnswerQueryBuilderAndSpaqlResultFetcherTest {
         // TODO: receive a ASK query answer
         QAnswerResult result1 = testWebService(myApp, computedQuestion, lang, kb, user);
 
-        assertEquals(result0.getValues().get(0).get("query"), result1.getValues().get(0).get("query"), "Results are not equal");
+        assertEquals(result0.getSparql(), result1.getSparql(), "Results are not equal");
     }
 
     /**
@@ -313,8 +334,10 @@ class QAnswerQueryBuilderAndSpaqlResultFetcherTest {
         String kb = "wikidata";
         String user = "open";
 
-        QAnswerQueryBuilderAndSparqlResultFetcher myApp = new QAnswerQueryBuilderAndSparqlResultFetcher(threshold, lang, kb, user,
-                this.realEndpoint, applicationName, restTemplate);
+        QAnswerQueryBuilderAndSparqlResultFetcher myApp = 
+            new QAnswerQueryBuilderAndSparqlResultFetcher(threshold, applicationName, 
+                    lang, supportedLang, kb, user, this.realEndpoint, 
+                    restTemplate, cacheOfRestTemplateResponse);
         String question = "what is the nickname of Rome";
         QAnswerResult result0 = testWebService(myApp, question, lang, kb, user);
 

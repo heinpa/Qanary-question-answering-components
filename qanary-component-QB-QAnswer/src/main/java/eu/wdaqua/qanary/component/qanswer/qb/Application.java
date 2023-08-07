@@ -1,7 +1,11 @@
 package eu.wdaqua.qanary.component.qanswer.qb;
 
+import eu.wdaqua.qanary.communications.CacheOfRestTemplateResponse;
+import eu.wdaqua.qanary.communications.RestTemplateWithCaching;
+import eu.wdaqua.qanary.component.QanaryComponent;
 import eu.wdaqua.qanary.component.QanaryComponentConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -10,6 +14,8 @@ import org.springframework.context.annotation.ComponentScan;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.ArrayList;
 
 @SpringBootApplication
 @ComponentScan(basePackages = {"eu.wdaqua.qanary"})
@@ -26,14 +32,25 @@ public class Application {
         SpringApplication.run(Application.class, args);
     }
 
-    @Bean
-    float threshold(@Value("${qanswer.qbe.namedentities.threshold:0.5}") float threshold) {
+	  @Autowired
+	  CacheOfRestTemplateResponse myCacheOfResponses;
+
+    @Autowired
+    RestTemplateWithCaching restTemplateWithCaching;
+
+    @Bean(name = "threshold")
+    float threshold(@Value("${qanswer.qb.namedentities.threshold:0.5}") float threshold) {
         return threshold;
     }
 
     @Bean(name = "langDefault")
     String langDefault(@Value("${qanswer.endpoint.language.default:en}") String langDefault) {
         return langDefault;
+    }
+
+    @Bean(name = "supportedLang")
+    ArrayList<String> supportedLang(@Value("${qanswer.endpoint.language.supported:en}") ArrayList<String> supportedLang) {
+        return supportedLang;
     }
 
     @Bean(name = "knowledgeBaseDefault")
@@ -51,5 +68,36 @@ public class Application {
     @Bean(name = "endpointUrl")
     URI endpointUrl(@Value("${qanswer.endpoint.url}") String endpointUrl) throws URISyntaxException {
         return new URI(endpointUrl);
+    }
+
+    /**
+    * this method is needed to make the QanaryComponent in this project known
+    * to the QanaryServiceController in the qanary_component-template
+    * 
+    * @return
+     * @throws URISyntaxException
+    */
+    @Bean
+    public QanaryComponent qanaryComponent(
+        @Qualifier("threshold") float threshold,
+        @Value("${spring.application.name}") final String applicationName,
+        @Qualifier("langDefault") String langDefault,
+        @Qualifier("supportedLang") ArrayList<String> supportedLang, 
+        @Qualifier("knowledgeBaseDefault") String knowledgeBaseDefault,
+        @Qualifier("userDefault") String userDefault,
+        @Qualifier("endpointUrl") URI endpoint,
+        RestTemplateWithCaching restTemplate,
+        CacheOfRestTemplateResponse cacheOfRestTemplateResponse) throws URISyntaxException {
+      return new QAnswerQueryBuilderAndSparqlResultFetcher(
+          threshold, 
+          applicationName,
+          langDefault,
+          supportedLang,
+          knowledgeBaseDefault,
+          userDefault,
+          endpoint,
+          restTemplate,
+          cacheOfRestTemplateResponse
+          );
     }
 }
