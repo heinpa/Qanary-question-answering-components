@@ -2,7 +2,7 @@ version: '3'
 services: 
   component:
     # for building from source
-    image: qanary-component-mt-python-mbart:latest
+    image: heipa/qanary-component-mbart:thesis
     build: 
       context: .
       dockerfile: Dockerfile

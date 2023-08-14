@@ -1,6 +1,7 @@
 version: '3'
 services:
   mt-helsinki-nlp: 
+    image: heipa/qanary-component-helsinki:thesis
     build: # for building from source
       context: .
       dockerfile: Dockerfile
@@ -9,4 +10,4 @@ services:
     env_file:
       - .env
     volumes:
-      - /path/to/huggingface-docker-cache:/root/.cache/huggingface/transformers # for caching huggingface models
+      - /home/caspier/.cache/huggingface:/root/.cache/huggingface # for caching huggingface models

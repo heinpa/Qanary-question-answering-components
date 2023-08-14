@@ -1,4 +1,4 @@
-import langid
+#import langid
 from langdetect import detect
 import logging
 import os
@@ -12,6 +12,8 @@ logging.basicConfig(format="%(asctime)s - %(message)s", level=logging.INFO)
 mt_mbart_nlp_bp = Blueprint("mt_mbart_nlp_bp", __name__, template_folder="templates")
 
 SERVICE_NAME_COMPONENT = os.environ["SERVICE_NAME_COMPONENT"]
+SOURCE_LANG = os.environ["SOURCE_LANGUAGE"]
+TARGET_LANG = os.environ["TARGET_LANGUAGE"]
 
 model = MBartForConditionalGeneration.from_pretrained("facebook/mbart-large-50-many-to-many-mmt")
 tokenizer = MBart50TokenizerFast.from_pretrained("facebook/mbart-large-50-many-to-many-mmt")
@@ -23,10 +25,10 @@ lang_code_map = {
     "es": "ex_XX",
     "pt": "pr_XX"
 }
-target_lang = "en"
+target_lang = TARGET_LANG
 
 supported_langs = lang_code_map.keys() # TODO: check supported languages for LibreTranslate
-langid.set_languages(supported_langs)
+#langid.set_languages(supported_langs)
 
 
 @mt_mbart_nlp_bp.route("/annotatequestion", methods=["POST"])
@@ -46,7 +48,8 @@ def qanary_service():
     logging.info(f"Question text: {text}")
 
     #lang, prob = langid.classify(text)
-    lang = detect(text)
+    #lang = detect(text)
+    lang = SOURCE_LANG
     logging.info(f"source language: {lang}")
 
     ## MAIN FUNCTIONALITY

@@ -1,4 +1,4 @@
-import langid
+#import langid
 from langdetect import detect
 import logging
 import os
@@ -12,6 +12,9 @@ logging.basicConfig(format="%(asctime)s - %(message)s", level=logging.INFO)
 mt_nllb_bp = Blueprint("mt_nllb_bp", __name__, template_folder="templates")
 
 SERVICE_NAME_COMPONENT = os.environ["SERVICE_NAME_COMPONENT"]
+SOURCE_LANG = os.environ["SOURCE_LANGUAGE"]
+TARGET_LANG = os.environ["TARGET_LANGUAGE"]
+
 
 model = AutoModelForSeq2SeqLM.from_pretrained("facebook/nllb-200-distilled-600M")
 tokenizer = AutoTokenizer.from_pretrained("facebook/nllb-200-distilled-600M")
@@ -23,10 +26,10 @@ lang_code_map = {
     'es': 'spa_Latn',
     'pt': 'por_Latn'
 }
-target_lang = "en"
+target_lang = TARGET_LANG
 
 supported_langs = lang_code_map.keys() # TODO: check supported languages 
-langid.set_languages(supported_langs)
+#langid.set_languages(supported_langs)
 
 
 @mt_nllb_bp.route("/annotatequestion", methods=["POST"])
@@ -50,12 +53,13 @@ def qanary_service():
     # if none, use default
 
     #lang, prob = langid.classify(text)
-    lang = detect(text)
+    #lang = detect(text)
+    lang = SOURCE_LANG
     logging.info(f"source language: {lang}")
 
 
     ## MAIN FUNCTIONALITY
-    tokenizer.src_lang = lang_code_map[lang] 
+    tokenizer.src_lang = lang_code_map[lang]
     logging.info(f"source language mapped code: {tokenizer.src_lang}")
     batch = tokenizer(text, return_tensors="pt")
 
@@ -66,13 +70,15 @@ def qanary_service():
 
     # Perform the translation and decode the output
     generated_tokens = model.generate(
-        **batch, 
-        forced_bos_token_id=tokenizer.lang_code_to_id[lang_code_map[target_lang]]) # TODO: defined target lang
-    result = tokenizer.batch_decode(generated_tokens, skip_special_tokens=True)[0] 
+        **batch,
+        forced_bos_token_id=tokenizer.lang_code_to_id[lang_code_map[target_lang]])
+    result = tokenizer.batch_decode(generated_tokens, skip_special_tokens=True)[0]
 
 
 
     # building SPARQL query TODO: verify this annotation AnnotationOfQuestionTranslation ??
+    # TODO: setting AnnotationOfQuestionLanguage is a **workaround** 
+    #       
     SPARQLquery = """
         PREFIX qa: <http://www.wdaqua.eu/qa#>
         PREFIX oa: <http://www.w3.org/ns/openannotation/core/>
@@ -81,7 +87,7 @@ def qanary_service():
         INSERT {{
         GRAPH <{uuid}> {{
             ?a a qa:AnnotationOfQuestionTranslation ;
-                oa:hasTarget <{qanary_question_uri}> ; 
+                oa:hasTarget <{qanary_question_uri}> ;
                 oa:hasBody "{translation_result}"@en ;
                 oa:annotatedBy <urn:qanary:{app_name}> ;
                 oa:annotatedAt ?time .
@@ -96,7 +102,7 @@ def qanary_service():
         WHERE {{
             BIND (IRI(str(RAND())) AS ?a) .
             BIND (IRI(str(RAND())) AS ?b) .
-            BIND (now() as ?time) 
+            BIND (now() as ?time)
         }}
     """.format(
         uuid=triplestore_ingraph,
@@ -105,7 +111,7 @@ def qanary_service():
         src_lang=lang,
         app_name=SERVICE_NAME_COMPONENT
     )
-    
+
     logging.info(f'SPARQL: {SPARQLquery}')
     # inserting new data to the triplestore
     insert_into_triplestore(triplestore_endpoint, SPARQLquery)

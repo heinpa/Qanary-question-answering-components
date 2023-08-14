@@ -1,4 +1,4 @@
-import langid
+#import langid
 import logging
 import os
 from flask import Blueprint, jsonify, request
@@ -10,8 +10,11 @@ logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 mt_helsinki_nlp_bp = Blueprint('mt_helsinki_nlp_bp', __name__, template_folder='templates')
 
 SERVICE_NAME_COMPONENT = os.environ['SERVICE_NAME_COMPONENT']
+SOURCE_LANG = os.environ['SOURCE_LANGUAGE']
+
 supported_langs = ['ru', 'es', 'de', 'fr']
-langid.set_languages(supported_langs)
+#langid.set_languages(supported_langs)
+# TODO: no target language is set, because only 'en' is supported
 models = {lang: MarianMTModel.from_pretrained('Helsinki-NLP/opus-mt-{lang}-en'.format(lang=lang)) for lang in supported_langs}
 tokenizers = {lang: MarianTokenizer.from_pretrained('Helsinki-NLP/opus-mt-{lang}-en'.format(lang=lang)) for lang in supported_langs}
 
@@ -19,7 +22,7 @@ tokenizers = {lang: MarianTokenizer.from_pretrained('Helsinki-NLP/opus-mt-{lang}
 @mt_helsinki_nlp_bp.route("/annotatequestion", methods=['POST'])
 def qanary_service():
     """the POST endpoint required for a Qanary service"""
-    
+
     triplestore_endpoint = request.json["values"]["urn:qanary#endpoint"]
     triplestore_ingraph = request.json["values"]["urn:qanary#inGraph"]
     triplestore_outgraph = request.json["values"]["urn:qanary#outGraph"]
@@ -28,11 +31,14 @@ def qanary_service():
     text = get_text_question_in_graph(triplestore_endpoint=triplestore_endpoint, graph=triplestore_ingraph)[0]['text']
     question_uri = get_text_question_in_graph(triplestore_endpoint=triplestore_endpoint, graph=triplestore_ingraph)[0]['uri']
     logging.info(f'Question Text: {text}')
-    
-    lang, prob = langid.classify(text)
+
+    #lang, prob = langid.classify(text)
+    lang = SOURCE_LANG
+    if lang not in supported_langs:
+        raise RuntimeError(f"source language {lang} is not supported!")
 
     batch = tokenizers[lang]([text], return_tensors="pt", padding=True)
-                    
+
     # Make sure that the tokenized text does not exceed the maximum
     # allowed size of 512
     batch["input_ids"] = batch["input_ids"][:, :512]

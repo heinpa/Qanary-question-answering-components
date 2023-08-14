@@ -13,7 +13,7 @@ services:
   # component
   component:
     # for building from source
-    image: qanary-component-mt-python-libretranslate:latest
+    image: heipa/qanary-component-libretranslate:thesis
     build:
       context: .
       dockerfile: Dockerfile

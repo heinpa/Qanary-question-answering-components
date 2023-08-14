@@ -19,12 +19,12 @@ class TestComponent(TestCase):
 
     request_data = '''{
         "values": {
-            "urn:qanary#endpoint": "urn:qanary#test-endpoint", 
-            "urn:qanary#inGraph": "urn:qanary#test-inGraph", 
+            "urn:qanary#endpoint": "urn:qanary#test-endpoint",
+            "urn:qanary#inGraph": "urn:qanary#test-inGraph",
             "urn:qanary#outGraph": "urn:qanary#test-outGraph"
         },
-        "endpoint": "urn:qanary#test-endpoint", 
-        "inGraph": "urn:qanary#test-inGraph", 
+        "endpoint": "urn:qanary#test-endpoint",
+        "inGraph": "urn:qanary#test-inGraph",
         "outGrpah": "urn:qanary#test-outGraph"
     }'''
 

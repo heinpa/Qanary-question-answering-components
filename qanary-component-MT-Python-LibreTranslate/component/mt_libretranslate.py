@@ -11,9 +11,11 @@ logging.basicConfig(format="%(asctime)s - %(message)s", level=logging.INFO)
 mt_libretranslate_bp = Blueprint("mt_libretranslate_bp", __name__, template_folder="templates")
 
 SERVICE_NAME_COMPONENT = os.environ["SERVICE_NAME_COMPONENT"]
+SOURCE_LANG = os.environ["SOURCE_LANGUAGE"]
+TARGET_LANG = os.environ["TARGET_LANGUAGE"]
 
 
-target_lang = 'en'
+target_lang = TARGET_LANG
 TRANSLATE_ENDPOINT = os.environ["TRANSLATE_ENDPOINT"]
 LANGUAGES_ENDPOINT = os.environ["LANGUAGES_ENDPOINT"]
 
@@ -29,14 +31,15 @@ def qanary_service():
     logging.info("endpoint: %s, inGraph: %s, outGraph: %s" % \
                  (triplestore_endpoint, triplestore_ingraph, triplestore_outgraph))
 
-    text = get_text_question_in_graph(triplestore_endpoint=triplestore_endpoint, 
+    text = get_text_question_in_graph(triplestore_endpoint=triplestore_endpoint,
                                       graph=triplestore_ingraph)[0]["text"]
     question_uri = get_text_question_in_graph(triplestore_endpoint=triplestore_endpoint,
                                               graph=triplestore_ingraph)[0]["uri"]
     logging.info(f"Question text: {text}")
 
     #lang, prob = langid.classify(text)
-    lang = detect(text)
+    #lang = detect(text)
+    lang = SOURCE_LANG
     logging.info(f"source language: {lang}")
 
     ## TODO: MAIN FUNCTIONALITY
