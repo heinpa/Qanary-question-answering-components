@@ -60,7 +60,9 @@ class GAnswerQueryBuilderTest {
         String langDefault = "en";
         ArrayList<String> supportedLang = new ArrayList<String>(Arrays.asList("en", "fr", "es"));
 
-        GAnswerQueryBuilder gAnswerQueryBuilder = new GAnswerQueryBuilder(threshold, langDefault, supportedLang, this.endpoint, this.applicationName, this.restTemplate, this.myCacheOfResponse);
+        GAnswerQueryBuilder gAnswerQueryBuilder = new GAnswerQueryBuilder(
+                threshold, langDefault, supportedLang, this.endpoint, this.applicationName,
+                this.restTemplate, this.myCacheOfResponse);
 
         assertTrue(gAnswerQueryBuilder.isLangSupported("en"));
         assertTrue(gAnswerQueryBuilder.isLangSupported("fr"));
@@ -111,7 +113,9 @@ class GAnswerQueryBuilderTest {
         String langDefault = "en";
         ArrayList<String> supportedLang = new ArrayList<String>(Arrays.asList("en", "fr", "es"));
 
-        GAnswerQueryBuilder teBaQAQueryBuilder = new GAnswerQueryBuilder(threshold, langDefault, supportedLang, this.endpoint, this.applicationName, this.restTemplate, myCacheOfResponse);
+        GAnswerQueryBuilder teBaQAQueryBuilder = new GAnswerQueryBuilder(
+                threshold, langDefault, supportedLang, this.endpoint, this.applicationName,
+                this.restTemplate, myCacheOfResponse);
 
 //      TODO add question text
         String question = "";

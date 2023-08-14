@@ -52,7 +52,7 @@ class MockGAnswerQueryBuilderTest {
 
         this.mockServer = MockRestServiceServer.createServer(this.restTemplate);
 
-        this.mockServer.expect(requestTo(this.endpoint + "?question=Population%2520of%2520france?")).andExpect(method(org.springframework.http.HttpMethod.GET)).andRespond(withSuccess("{\"queries\":[\"" //
+        this.mockServer.expect(requestTo(this.endpoint + "?question=Population%20of%20france?")).andExpect(method(org.springframework.http.HttpMethod.GET)).andRespond(withSuccess("{\"queries\":[\"" //
                         + GAnswerTestConfiguration.getTestQuery(testQueryFilename) //
                         + "\"] }", //
                 MediaType.APPLICATION_JSON));

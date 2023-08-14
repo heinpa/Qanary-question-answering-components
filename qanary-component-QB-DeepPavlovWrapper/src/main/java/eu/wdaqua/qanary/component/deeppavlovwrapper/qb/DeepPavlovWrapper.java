@@ -117,13 +117,24 @@ public class DeepPavlovWrapper extends QanaryComponent {
 		QanaryQuestion<String> myQanaryQuestion = this.getQanaryQuestion();
 
     String lang = null;
-    try {
-      lang = myQanaryQuestion.getLanguage();
-      logger.info("Using language: {}", lang);
-    } catch (Exception e) {
-      lang = langDefault;
-      logger.warn("Using langDefault: {}:\n{}", lang, e.getMessage());
-    } 
+        // TODO: I am not sure what the desired functionality for the actual component would be
+        // but for my thesis, looking for Question.getLanguage() does *not* provide the desired
+        // result:
+        //  it returns the *original* language,
+        //  but I want to only work with the *translation* language
+        // how would this information be passed in a normal usecase?
+        //
+        // For my thesis it's enough to rely on setting 'langDefault' to the desired target lang
+//        try {
+//          lang = myQanaryQuestion.getLanguage(); // this does not work 
+//          logger.info("Using language: {}", lang);
+//        } catch (Exception e) {
+//          lang = langDefault;
+//          logger.warn("Using langDefault: {}:\n{}", lang, e.getMessage());
+//        } 
+
+        // only work with the language specified in configuration
+        lang = langDefault;
 
     if (isLangSupported(lang) == false) {
         logger.warn("lang ({}) is not supported", lang);
