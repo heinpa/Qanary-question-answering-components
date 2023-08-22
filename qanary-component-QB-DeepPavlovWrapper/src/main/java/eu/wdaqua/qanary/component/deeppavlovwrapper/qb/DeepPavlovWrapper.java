@@ -105,7 +105,7 @@ public class DeepPavlovWrapper extends QanaryComponent {
 	 * @throws SparqlQueryFailed
 	 */
 	@Override
-	public QanaryMessage process(QanaryMessage myQanaryMessage) throws Exception {
+	public QanaryMessage process(QanaryMessage myQanaryMessage) {
 		logger.info("process: {}", myQanaryMessage);
 
 		// --------------------------------------------------------------------
@@ -151,26 +151,39 @@ public class DeepPavlovWrapper extends QanaryComponent {
       logger.info("Using specific textual representation for language {}: {}", lang, questionString);
     } catch (Exception e) {
       logger.warn("Could not retrieve specific textual representation for language {}:\n{}", e.getMessage());
-      questionString = myQanaryQuestion.getTextualRepresentation();
+    }
+    // only if no language-specific text could be found
+    if (questionString.length() == 0){
+        try {
+            questionString = myQanaryQuestion.getTextualRepresentation();
+            logger.info("Using default textual representation {}", questionString);
+        } catch (Exception e) {
+            logger.warn("Could not retrieve textual representation:\n{}", e.getMessage());
+            // stop processing of the question, as it will not work without a question text
+            return myQanaryMessage;
+        }
     }
 
 		// --------------------------------------------------------------------
 		// STEP 2: compute new knowledge about the given question
 		// --------------------------------------------------------------------
 
-    DeepPavlovResult result = requestDeepPavlovWebService(endpoint, questionString, lang);
-    if (result == null) {
-        logger.error("No result from gAnswer API");
+    try {
+      DeepPavlovResult result = requestDeepPavlovWebService(endpoint, questionString, lang);
+      if (result == null) {
+        logger.error("No result from DeepPavlov API");
         return myQanaryMessage;
+      } else {
+        // --------------------------------------------------------------------
+        // STEP 3: store computed knowledge about the given question into the Qanary triplestore 
+        // (the global process memory)
+        // --------------------------------------------------------------------
+        String sparql = getSparqlInsertQuery(myQanaryQuestion, result);
+        myQanaryUtils.getQanaryTripleStoreConnector().update(sparql);
+      }
+    } catch (Exception e) {
+      logger.error("Could not fetch result from DeepPavlov API:\n{}", e.getMessage());
     }
-
-		// --------------------------------------------------------------------
-		// STEP 3: store computed knowledge about the given question into the Qanary triplestore 
-		// (the global process memory)
-		// --------------------------------------------------------------------
-
-    String sparql = getSparqlInsertQuery(myQanaryQuestion, result);
-    myQanaryUtils.getQanaryTripleStoreConnector().update(sparql);
 
 		return myQanaryMessage;
 	}

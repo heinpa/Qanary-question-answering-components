@@ -56,28 +56,40 @@ public class SparqlExecuter extends QanaryComponent {
      * @throws Exception
      */
     @Override
-    public QanaryMessage process(QanaryMessage myQanaryMessage) throws Exception {
+    public QanaryMessage process(QanaryMessage myQanaryMessage) {
         logger.info("process: {}", myQanaryMessage);
         QanaryUtils myQanaryUtils = this.getUtils(myQanaryMessage);
         QanaryQuestion<String> myQanaryQuestion = new QanaryQuestion<>(myQanaryMessage, myQanaryUtils.getQanaryTripleStoreConnector());
 
+        String sparqlQuery; 
+        String endpoint;
+
         // STEP 1: get the required data from the triplestore
-        String sparqlQuery = getResultSparqlQuery(myQanaryUtils, myQanaryQuestion);
+        try {
+            sparqlQuery = getResultSparqlQuery(myQanaryUtils, myQanaryQuestion);
+        } catch (SparqlQueryFailed | IOException e) {
+            logger.error("Could not get reuslt sparql query:\n{}", e.getMessage());
+            return myQanaryMessage;
+        }
 
         // STEP 2: execute the first SPARQL query
-        String endpoint = selectKnowledgeGraphEnpdoint(sparqlQuery);
+        endpoint = selectKnowledgeGraphEnpdoint(sparqlQuery);
         if (endpoint == null) {
             return myQanaryMessage;
         }
 
-        String json = getQueryResultsAsJson(sparqlQuery, endpoint);
-        logger.info("Generated answers in RDF json: {}", json);
-
-        // STEP 3: Push the the JSON object to the named graph reserved for the question
-        logger.info("Push the the JSON object to the named graph reserved for the answer");
-        String sparqlInsertAnnotationOfAnswerJson = getSparqlInsertQuery(json, myQanaryQuestion);
-        logger.info("SPARQL insert for adding data to Qanary triplestore: {}", sparqlInsertAnnotationOfAnswerJson);
-        myQanaryUtils.getQanaryTripleStoreConnector().update(sparqlInsertAnnotationOfAnswerJson);
+        try {
+            String json = getQueryResultsAsJson(sparqlQuery, endpoint);
+            logger.info("Generated answers in RDF json: {}", json);
+            // STEP 3: Push the the JSON object to the named graph reserved for the question
+            logger.info("Push the the JSON object to the named graph reserved for the answer");
+            String sparqlInsertAnnotationOfAnswerJson = getSparqlInsertQuery(json, myQanaryQuestion);
+            logger.info("SPARQL insert for adding data to Qanary triplestore: {}", sparqlInsertAnnotationOfAnswerJson);
+            myQanaryUtils.getQanaryTripleStoreConnector().update(sparqlInsertAnnotationOfAnswerJson);
+        } catch (Exception e) {
+            logger.error("Could not annotate a result result:\n{}", e.getMessage());
+            return myQanaryMessage;
+        }
 
         return myQanaryMessage;
     }

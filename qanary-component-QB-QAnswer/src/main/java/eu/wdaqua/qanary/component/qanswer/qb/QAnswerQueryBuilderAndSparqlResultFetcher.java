@@ -9,6 +9,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.jena.query.Query;
+import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.QuerySolutionMap;
 import org.apache.jena.query.ResultSet;
@@ -112,7 +114,7 @@ public class QAnswerQueryBuilderAndSparqlResultFetcher extends QanaryComponent {
      * @throws SparqlQueryFailed
      */
     @Override
-    public QanaryMessage process(QanaryMessage myQanaryMessage) throws Exception {
+    public QanaryMessage process(QanaryMessage myQanaryMessage) {
         logger.info("process: {}", myQanaryMessage);
 
         // --------------------------------------------------------------------
@@ -158,7 +160,17 @@ public class QAnswerQueryBuilderAndSparqlResultFetcher extends QanaryComponent {
           logger.info("Using specific textual representation for language {}: {}", lang, questionString);
         } catch (Exception e) {
           logger.warn("Could not retrieve specific textual representation for language {}:\n{}", e.getMessage());
-          questionString = myQanaryQuestion.getTextualRepresentation();
+        }
+        // only if no language-specific text could be found
+        if (questionString.length() == 0){
+            try {
+                questionString = myQanaryQuestion.getTextualRepresentation();
+                logger.info("Using default textual representation {}", questionString);
+            } catch (Exception e) {
+                logger.warn("Could not retrieve textual representation:\n{}", e.getMessage());
+                // stop processing of the question, as it will not work without a question text
+                return myQanaryMessage;
+            }
         }
 
         //TODO: where would the values even come from? 
@@ -173,25 +185,35 @@ public class QAnswerQueryBuilderAndSparqlResultFetcher extends QanaryComponent {
             user = userDefault;
         }
 
-        List<NamedEntity> retrievedNamedEntities = getNamedEntitiesOfQuestion(myQanaryQuestion,
-                myQanaryQuestion.getInGraph());
+        List<NamedEntity> retrievedNamedEntities = new LinkedList<>();
+        try {
+            retrievedNamedEntities = getNamedEntitiesOfQuestion(myQanaryQuestion,
+                    myQanaryQuestion.getInGraph());
+        } catch (Exception e) {
+            logger.debug("Did not retrieve any Named Entities for this question:\n{}", e.getMessage());
+        }
+
+        String questionStringWithResources = computeQuestionStringWithReplacedResources(questionString,
+                retrievedNamedEntities, threshold);
 
         // --------------------------------------------------------------------
         // STEP 2: compute new knowledge about the given question
         // --------------------------------------------------------------------
-        String questionStringWithResources = computeQuestionStringWithReplacedResources(questionString,
-                retrievedNamedEntities, threshold);
         
-        QAnswerResult result = requestQAnswerWebService(endpoint, questionStringWithResources, lang, knowledgeBaseId, user);
+        try {
+            QAnswerResult result = requestQAnswerWebService(endpoint, questionStringWithResources, lang, knowledgeBaseId, user);
 
-        // --------------------------------------------------------------------
-        // STEP 3: store computed knowledge about the given question into the Qanary triplestore 
-        // (the global process memory)
-        // --------------------------------------------------------------------
-        String sparql = getSparqlInsertQuery(myQanaryQuestion, result);
-        logger.debug("created SPARQL query: {}", sparql);
-        QanaryTripleStoreConnector connector = myQanaryUtils.getQanaryTripleStoreConnector();
-        connector.update(sparql);
+            // --------------------------------------------------------------------
+            // STEP 3: store computed knowledge about the given question into the Qanary triplestore 
+            // (the global process memory)
+            // --------------------------------------------------------------------
+            String sparql = getSparqlInsertQuery(myQanaryQuestion, result);
+            logger.debug("created SPARQL query: {}", sparql);
+            QanaryTripleStoreConnector connector = myQanaryUtils.getQanaryTripleStoreConnector();
+            connector.update(sparql);
+        } catch (Exception e) {
+            logger.warn("Could not compute a QAnswer result:\n{}", e.getMessage());
+        }
 
         return myQanaryMessage;
     }
@@ -284,8 +306,7 @@ public class QAnswerQueryBuilderAndSparqlResultFetcher extends QanaryComponent {
                     score, threshold, ignored);
         }
 
-        logger.info("Result list ({} items) of getNamedEntitiesOfQuestion for question \"{}\".", namedEntities.size(),
-                myQanaryQuestion.getTextualRepresentation());
+        logger.info("Result list ({} items) of getNamedEntitiesOfQuestion for question.", namedEntities.size());
         if (namedEntities.size() == 0) {
             logger.warn("no named entities exist for '{}'", myQanaryQuestion.getTextualRepresentation());
         } else {
@@ -346,7 +367,20 @@ public class QAnswerQueryBuilderAndSparqlResultFetcher extends QanaryComponent {
     }
 
     private String cleanStringForSparqlQuery(String myString) {
-        return myString.replaceAll("\"", "\\\"").replaceAll("\n", "").replaceAll("\t", "");
+        String cleanedString = myString.replaceAll("\"", "\\\"").replaceAll("\n", "").replaceAll("\t", "");
+
+        Query query = QueryFactory.create(cleanedString);
+
+        // TODO: remove this parsing workaround!! 
+        // remove LIMIT if ASK query
+        if (query.isAskType()) {
+            logger.info("Query is type ASK, removing LIMIT!");
+             cleanedString = cleanedString.replaceAll("(?i)limit\\s+\\d+", "");
+        }
+
+        return cleanedString;
+
+
     }
 
     /**
