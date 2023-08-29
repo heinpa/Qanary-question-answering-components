@@ -371,7 +371,7 @@ public class QAnswerQueryBuilderAndSparqlResultFetcher extends QanaryComponent {
 
         Query query = QueryFactory.create(cleanedString);
 
-        // TODO: remove this parsing workaround!! 
+        // TODO: include this parsing workaround?
         // remove LIMIT if ASK query
         if (query.isAskType()) {
             logger.info("Query is type ASK, removing LIMIT!");
@@ -379,7 +379,6 @@ public class QAnswerQueryBuilderAndSparqlResultFetcher extends QanaryComponent {
         }
 
         return cleanedString;
-
 
     }
 
