@@ -13,8 +13,10 @@ SERVICE_NAME_COMPONENT = os.environ['SERVICE_NAME_COMPONENT']
 SOURCE_LANG = os.environ['SOURCE_LANGUAGE']
 
 supported_langs = ['ru', 'es', 'de', 'fr']
+target_lang = "en" # for now only used in annotation
 #langid.set_languages(supported_langs)
 # TODO: no target language is set, because only 'en' is supported
+# TODO: determine supported target langs and download models for that 
 models = {lang: MarianMTModel.from_pretrained('Helsinki-NLP/opus-mt-{lang}-en'.format(lang=lang)) for lang in supported_langs}
 tokenizers = {lang: MarianTokenizer.from_pretrained('Helsinki-NLP/opus-mt-{lang}-en'.format(lang=lang)) for lang in supported_langs}
 
@@ -56,8 +58,8 @@ def qanary_service():
         INSERT {{
         GRAPH <{uuid}> {{
             ?a a qa:AnnotationOfQuestionTranslation ;
-                oa:hasTarget <{qanary_question_uri}> ; 
-                oa:hasBody "{translation_result}"@en ;
+                oa:hasTarget <{qanary_question_uri}> ;
+                oa:hasBody "{translation_result}"@{target_lang} ;
                 oa:annotatedBy <urn:qanary:{app_name}> ;
                 oa:annotatedAt ?time .
 
@@ -71,16 +73,17 @@ def qanary_service():
         WHERE {{
             BIND (IRI(str(RAND())) AS ?a) .
             BIND (IRI(str(RAND())) AS ?b) .
-            BIND (now() as ?time) 
+            BIND (now() as ?time)
         }}
     """.format(
         uuid=triplestore_ingraph,
         qanary_question_uri=question_uri,
-        translation_result=result,
+        translation_result=result.replace("\"", "\\\""),
         src_lang=lang,
+        target_lang=target_lang,
         app_name=SERVICE_NAME_COMPONENT
     )
-    
+
     logging.info(f'SPARQL: {SPARQLquery}')
     # inserting new data to the triplestore
     insert_into_triplestore(triplestore_endpoint, SPARQLquery)

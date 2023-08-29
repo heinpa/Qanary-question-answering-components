@@ -88,7 +88,7 @@ def qanary_service():
         GRAPH <{uuid}> {{
             ?a a qa:AnnotationOfQuestionTranslation ;
                 oa:hasTarget <{qanary_question_uri}> ;
-                oa:hasBody "{translation_result}"@en ;
+                oa:hasBody "{translation_result}"@{target_lang} ;
                 oa:annotatedBy <urn:qanary:{app_name}> ;
                 oa:annotatedAt ?time .
 
@@ -107,8 +107,9 @@ def qanary_service():
     """.format(
         uuid=triplestore_ingraph,
         qanary_question_uri=question_uri,
-        translation_result=result,
+        translation_result=result.replace("\"", "\\\""),
         src_lang=lang,
+        target_lang=target_lang,
         app_name=SERVICE_NAME_COMPONENT
     )
 
