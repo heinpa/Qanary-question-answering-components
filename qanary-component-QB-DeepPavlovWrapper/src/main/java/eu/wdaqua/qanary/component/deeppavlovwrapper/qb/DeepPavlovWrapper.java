@@ -5,6 +5,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
+import org.apache.jena.query.Query;
+import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.QuerySolutionMap;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.shiro.util.Assert;
@@ -224,12 +226,22 @@ public class DeepPavlovWrapper extends QanaryComponent {
       return false;
   }
 
-  protected String addPrefixes(String query) {
+  protected String prepareResultQueryForSparqlInsert(String resultQuery) {
 
+    // add missing prefixes
     String sparql = "PREFIX wd: <http://www.wikidata.org/entity/> "
       + "PREFIX wdt: <http://www.wikidata.org/prop/direct/> " 
-      + query;
-    return sparql;
+      + resultQuery;
+
+    Query query = QueryFactory.create(sparql);
+    logger.info("Query is select type: {}", query.isSelectType());
+    logger.info("Query has limit: {}", query.getLimit());
+    if (query.isSelectType() && query.getLimit() == Query.NOLIMIT) {
+      logger.info("Query is type SELECT, but without LIMIT! Adding LIMIT 1000.");
+      query.setLimit(1000);
+    }
+
+    return query.toString();
   }
 
     /**
@@ -250,7 +262,7 @@ public class DeepPavlovWrapper extends QanaryComponent {
      */
     protected String getSparqlInsertQuery(QanaryQuestion<String> myQanaryQuestion, DeepPavlovResult result) throws QanaryExceptionNoOrMultipleQuestions, URISyntaxException, SparqlQueryFailed, IOException {
 
-      String query = addPrefixes(result.getSparql());
+      String query = prepareResultQueryForSparqlInsert(result.getSparql());
 
       // define here the parameters for the SPARQL INSERT query
       QuerySolutionMap bindings = new QuerySolutionMap();
