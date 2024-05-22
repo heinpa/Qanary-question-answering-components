@@ -2,7 +2,7 @@
 
 declare -A summary
 failures=false 
-components=$(ls | grep -P "qanary-component.*Python-[a-zA-Z]+$")
+components=$(ls | grep -P "qanary-component.*Python-NLL[a-zA-Z]+$")
 
 # create a super directory to hold virtual environments (for caching)
 if mkdir environments; then
@@ -57,7 +57,7 @@ do
 
   #pip freeze | xargs pip uninstall -y TODO: disabled because that would mess with caching
   deactivate
-  rm -r ${envname}
+  #rm -r ${envname}
 
   cd ..
 

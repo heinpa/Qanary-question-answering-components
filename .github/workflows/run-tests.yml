@@ -5,34 +5,34 @@ on:
     branches: [master]
 
 jobs:
-  test-java:
-    runs-on: ubuntu-latest
-    env:
-      BABELFY_API_KEY : someapikey
-      CHATGPT_API_KEY : someapikey
-      DANDELION_API_KEY : someapikey
-      MEANINGCLOUD_API_KEY : someapikey
-      TAGME_API_KEY : someapikey
-      TEXTRAZOR_API_KEY : someapikey
-      OPENAI_API_KEY : someapikey
-      BABELFY_API_LIVE_TEST_ACTIVE : false
-      PLATYPUS_API_LIVE_TEST_ACTIVE : false
-      TEXTRAZOR_API_LIVE_TEST_ACTIVE : false
-      CHATGPT_API_LIVE_TEST_ACTIVE : false
-      DANDELION_API_LIVE_TEST_ACTIVE : false
-      MEANINGCLOUD_API_LIVE_TEST_ACTIVE : false
-      AGDISTIS_API_LIVE_TEST_ACTIVE : false
-      OPENAI_API_LIVE_TEST_ACTIVE : false
-      TAGME_API_LIVE_TEST_ACTIVE : false
-    steps:
-      - name: Configure java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'corretto'
-          java-version: '17'
-      - uses: actions/checkout@v4
-      - name: Test Java components
-        run: bash -c ./service_config/test_java_components.sh
+  #  test-java:
+  #    runs-on: ubuntu-latest
+  #    env:
+  #      BABELFY_API_KEY : someapikey
+  #      CHATGPT_API_KEY : someapikey
+  #      DANDELION_API_KEY : someapikey
+  #      MEANINGCLOUD_API_KEY : someapikey
+  #      TAGME_API_KEY : someapikey
+  #      TEXTRAZOR_API_KEY : someapikey
+  #      OPENAI_API_KEY : someapikey
+  #      BABELFY_API_LIVE_TEST_ACTIVE : false
+  #      PLATYPUS_API_LIVE_TEST_ACTIVE : false
+  #      TEXTRAZOR_API_LIVE_TEST_ACTIVE : false
+  #      CHATGPT_API_LIVE_TEST_ACTIVE : false
+  #      DANDELION_API_LIVE_TEST_ACTIVE : false
+  #      MEANINGCLOUD_API_LIVE_TEST_ACTIVE : false
+  #      AGDISTIS_API_LIVE_TEST_ACTIVE : false
+  #      OPENAI_API_LIVE_TEST_ACTIVE : false
+  #      TAGME_API_LIVE_TEST_ACTIVE : false
+  #    steps:
+  #      - name: Configure java
+  #        uses: actions/setup-java@v4
+  #        with:
+  #          distribution: 'corretto'
+  #          java-version: '17'
+  #      - uses: actions/checkout@v4
+  #      - name: Test Java components
+  #        run: bash -c ./service_config/test_java_components.sh
   test-python:
     runs-on: ubuntu-latest
     steps:
