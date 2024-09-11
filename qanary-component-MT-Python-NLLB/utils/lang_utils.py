@@ -8,12 +8,13 @@ SOURCE_LANGUAGE = os.getenv("SOURCE_LANGUAGE")
 TARGET_LANGUAGE = os.getenv("TARGET_LANGUAGE")
 SUPPORTED_LANGS = {
 #   source: targets
-    'en': ['de', 'ru', 'fr', 'es', 'pt'],
-    'de': ['en', 'ru', 'fr', 'es', 'pt'],
-    'ru': ['en', 'de', 'fr', 'es', 'pt'],
-    'fr': ['en', 'de', 'ru', 'es', 'pt'],
-    'es': ['en', 'de', 'ru', 'fr', 'pt'],
-    'pt': ['en', 'de', 'ru', 'fr', 'es']
+    'en': ['de', 'ru', 'fr', 'es', 'pt', 'ar'],
+    'de': ['en', 'ru', 'fr', 'es', 'pt', 'ar'],
+    'ru': ['en', 'de', 'fr', 'es', 'pt', 'ar'],
+    'fr': ['en', 'de', 'ru', 'es', 'pt', 'ar'],
+    'es': ['en', 'de', 'ru', 'fr', 'pt', 'ar'],
+    'pt': ['en', 'de', 'ru', 'fr', 'es', 'ar'],
+    'ar': ['en', 'de', 'ru', 'fr', 'es', 'pt']
 }
 
 LANG_CODE_MAP = {
@@ -22,7 +23,8 @@ LANG_CODE_MAP = {
     'ru': 'rus_Cyrl',
     'fr': 'fra_Latn',
     'es': 'spa_Latn',
-    'pt': 'por_Latn'
+    'pt': 'por_Latn',
+    'ar': 'arb_Arab'
 }
 
 

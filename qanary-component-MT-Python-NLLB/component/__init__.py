@@ -2,7 +2,7 @@ from component import mt_nllb
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse, Response
 
-version = "0.2.0"
+version = "0.2.1"
 
 # default config file
 configfile = "app.conf"
